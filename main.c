@@ -6,6 +6,9 @@
 
 #include <ctype.h>  // FOR CHARACTER HANDLING FUNCTIONS (E.G. , TOLOWER )
 
+#define TABLE_SIZE 5000  // SIZE OF THE HASH TABLE
+
+
 
 // GLOBAL TOKEN ID STARTING FROM 4
 int global_token = 4;
@@ -79,38 +82,61 @@ char* Cleaned_Text(char *raw_text) {
 
     // GET THE LENGTH OF THE INPUT STRING
 
-    int len = strlen( raw_text );
+    int len = strlen(raw_text);
 
-    
-    // CREATE A BUFFER FOR THE CLEANED TEXT
 
-    static char cleaned_text[ 1024 ]; // MAX LENGTH OF IS 1024
+    // ALLOCATE MEMORY FOR THE CLEANED TEXT DYNAMICALLY
+
+    char *cleaned_text = (char *)malloc((len + 1) * sizeof(char)); // +1 FOR NULL TERMINATION
+
+
+    // CHECK FOR MEMORY ALLOCATION FAILURE
+
+    if (!cleaned_text) {
+
+        fprintf(stderr, "Memory allocation failed for cleaned text\n");
+
+        exit(EXIT_FAILURE);
+    }
+
 
     int j = 0;
+
+    // FLAG TO INDICATE IF THE LAST CHARACTER WAS A SPACE
+
+    int last_was_space = 0;
 
 
     // LOOP THROUGH EACH CHARACTER OF THE INPUT STRING
 
-    for( int i = 0; i < len ; i++ ) {
+    for (int i = 0; i < len; i++) {
 
         // CONVERT TO LOWERCASE 
 
-        char ch = tolower( raw_text[i] );
+        char ch = tolower(raw_text[i]);
 
 
         // REMOVE SPECIFIED CHARACTERS 
 
-        if( ch != '.' && ch != ',' && ch != '!' && ch != '?' && ch != '\\' && ch != '-' && ch != ';' && ch != '(' && ch != ')' && ch != '-') {
+        if (isalnum(ch)) { // KEEP ONLY ALPHANUMERIC CHARACTERS
 
-            cleaned_text[ j++ ] = ch; // ADD TO CLEANED TEXT 
+            cleaned_text[j++] = ch; // ADD TO CLEANED TEXT
+
+            last_was_space = 0; // RESET THE SPACE FLAG
+        } else if (ch == ' ' && !last_was_space) {
+
+            cleaned_text[j++] = ' '; // ADD SPACE ONLY IF LAST CHAR WAS NOT SPACE
+
+            last_was_space = 1; // SET THE SPACE FLAG
         }
     }
 
+
     // NULL-TERMINATE THE CLEANED TEXT 
 
-    cleaned_text[ j ] = '\0';
+    cleaned_text[j] = '\0';
 
-    
+
     // RETURN THE CLEANED TEXT 
 
     return cleaned_text;
@@ -118,64 +144,210 @@ char* Cleaned_Text(char *raw_text) {
 
 
 
+
+// STRUCTURE FOR THE HASH TABLE NODE
+typedef struct word_token_node { // CHANGED NODE TO WORD_TOKEN_NODE
+
+    char *word;              // THE WORD
+
+    unsigned int token_id;   // THE UNIQUE TOKEN ID
+
+    struct word_token_node *next; // POINTER TO THE NEXT NODE IN THE LINKED LIST
+
+} word_token_node;
+
+
+// HASH TABLE TO STORE UNIQUE WORDS
+word_token_node* hashTable[TABLE_SIZE] = { NULL };
+
+
+// IMPROVED HASH FUNCTION USING DJB2 ALGORITHM
+unsigned int hash(const char* word) {
+
+    unsigned long hashValue = 5381;
+
+    int c;
+
+    while ((c = *word++)) {
+
+        hashValue = ((hashValue << 5) + hashValue) + tolower(c); // HASH * 33 + C
+
+    }
+
+    return hashValue % TABLE_SIZE;
+
+}
+
+
+// FUNCTION TO INSERT WORD INTO THE HASH TABLE
+void insertWord(const char* word) {
+
+    unsigned int index = hash(word);
+
+    word_token_node* newNode = (word_token_node*)malloc(sizeof(word_token_node)); // CHANGED NODE TO WORD_TOKEN_NODE
+
+    newNode->word = strdup(word);
+
+    newNode->token_id = global_token;
+
+    global_token += 1; 
+    
+    newNode->next = hashTable[index];
+
+    hashTable[index] = newNode;
+
+}
+
+
+// FUNCTION TO CHECK IF THE WORD IS ALREADY IN THE HASH TABLE
+int isWordPresent(const char* word) {
+
+    unsigned int index = hash(word);
+
+    word_token_node* current = hashTable[index]; // CHANGED NODE TO WORD_TOKEN_NODE
+
+    while (current) {
+
+        if (strcmp(current->word, word) == 0) {
+
+            return 1;  // WORD FOUND
+
+        }
+
+        current = current->next;
+
+    }
+
+    return 0;  // WORD NOT FOUND
+
+}
+
+
+// FUNCTION TO PRINT ALL UNIQUE WORDS
+void Print_Tokens_And_Ids() {
+
+    printf("TOKEN   VS  TOKEN_ID  :\n");
+
+    printf("Table Size: %d \n", TABLE_SIZE);
+
+    for (int i = 0; i < TABLE_SIZE; i++) {
+
+        word_token_node* current = hashTable[i]; // CHANGED NODE TO WORD_TOKEN_NODE
+
+        while (current) {
+            
+            printf("%s : %d \n", current->word , current->token_id);
+
+            current = current->next;
+
+        }
+
+    }
+
+}
+
+
+// FUNCTION TO EXTRACT UNIQUE WORDS FROM A LIST OF SENTENCES
+void extractUniqueWords(char** sentences) {
+
+    char delimiters[] = " ,.;!?-";  // DELIMITERS FOR SPLITTING WORDS
+
+    for (int i = 0; sentences[i] != NULL; i++) {
+
+        char* sentence = strdup(sentences[i]); // DUPLICATE SENTENCE TO AVOID MODIFYING THE ORIGINAL
+
+        char* token = strtok(sentence, delimiters);
+
+        while (token != NULL) {
+
+            if (!isWordPresent(token)) {
+
+                insertWord(token);
+
+            }
+
+            token = strtok(NULL, delimiters);
+
+        }
+
+        free(sentence);
+
+    }
+
+}
+
+
 int main() {
 
-/////////////////////////// THE DATASET /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
+    // THE DATASET
 
     char *raw_text = readFileToString("text_data.txt");  // READ THE FILE CONTENT
 
-    printf("Raw Text Data :\n%s\n", raw_text);  // PRINT THE FILE CONTENT
+    printf("\n==============================\n");
+    printf("       RAW TEXT DATA         \n");
+    printf("==============================\n");
+    printf("%s\n", raw_text);  // PRINT THE FILE CONTENT
 
 
-//////////////////////////// SPLIT TO SENTENCES //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // SPLIT TO SENTENCES
 
-    printf("\n Extracting Sentences: \n");
+    printf("\n==============================\n");
+    printf("    EXTRACTING SENTENCES      \n");
+    printf("==============================\n");
 
-    char **sentences = SplitSentences( raw_text );
+    char **sentences = SplitSentences(raw_text);
 
-    
-    // PRINTING THE SENTENCES FOR CHECK 
+    // PRINTING THE SENTENCES FOR CHECK
 
-    printf("\n Extracted Successfully: \n");
+    printf("\n==============================\n");
+    printf("    EXTRACTED SENTENCES       \n");
+    printf("==============================\n");
 
-    for( int i = 0; sentences[i] != NULL; i++ ) {
-
-        printf(" %d: %s\n" , i + 1 , sentences[i]) ;
-    }
-
-/////////////////////////// DATA CLEANING //////////////////////////////////////////////////////////////////////////////
-
-    printf(" Cleaned text sentences: \n" );
-
-    for( int i = 0; sentences[i] != NULL; i++ ) {
-
-        sentences[i] = Cleaned_Text( sentences[i] ); 
-
-        printf(" %d: %s\n" , i + 1 , sentences[i]) ;
-
+    for (int i = 0; sentences[i] != NULL; i++) {
+        printf("  [%d] %s\n", i + 1, sentences[i]);
     }
 
 
-/////////////////////// TOKENIZATION AND NUMERICALIZATION ////////////////
+    // DATA CLEANING
+
+    printf("\n==============================\n");
+    printf("      CLEANED SENTENCES       \n");
+    printf("==============================\n");
+
+    for (int i = 0; sentences[i] != NULL; i++) {
+        char *cleaned_sentence = Cleaned_Text(sentences[i]); 
+
+        free(sentences[i]); // Free the old sentence memory
+
+        sentences[i] = cleaned_sentence; // Assign cleaned sentence back
+
+        printf("  [%d] %s\n", i + 1, sentences[i]);
+    }
 
 
+    // TOKENIZATION AND NUMERICALIZATION
 
+    printf("\n==============================\n");
+    printf("    TOKENIZATION AND NUMERICALIZATION \n");
+    printf("==============================\n");
 
+    extractUniqueWords(sentences); // EXTRACT UNIQUE WORDS FROM THE SENTENCES
 
+    Print_Tokens_And_Ids();
 
+    ////////////////////////////// FREE THE MEMORY AFTER RUNNING THE ENTIRE PROGRAM AND THE MODEL //////////////////////////
 
+    free(raw_text);  // FREE THE ALLOCATED MEMORY
 
+    // FREE SENTENCES MEMORY
+    for (int i = 0; sentences[i] != NULL; i++) {
+        free(sentences[i]);
+    }
+    free(sentences); // Free the array of sentences
 
-
-
-////////////////////////////// FREE THE MEMORY AFTER RUNNING THE ENTIRE PROGRAM AND THE MODEL //////////////////////////
-
-
-
-    free( raw_text );  // FREE THE ALLOCATED MEMORY
+    printf("\n==============================\n");
+    printf("          PROGRAM ENDED       \n");
+    printf("==============================\n");
 
     return 0;  // EXIT THE PROGRAM SUCCESSFULLY
-
 }
