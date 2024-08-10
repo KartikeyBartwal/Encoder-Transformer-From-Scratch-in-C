@@ -1,0 +1,15 @@
+// text_processing.h
+
+#ifndef TEXT_PROCESSING_H
+#define TEXT_PROCESSING_H
+
+// FUNCTION TO READ THE ENTIRE CONTENT OF A FILE AND RETURN IT AS A STRING
+char* readFileToString(const char *filename);
+
+// FUNCTION TO SPLIT TEXT INTO SENTENCES BASED ON PUNCTUATION MARKS
+char** SplitSentences(char *raw_text);
+
+// FUNCTION TO CLEAN TEXT BY CONVERTING TO LOWERCASE AND REMOVING SPECIFIED CHARACTERS
+char* Cleaned_Text(char *raw_text);
+
+#endif // TEXT_PROCESSING_H
