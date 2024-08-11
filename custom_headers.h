@@ -10,8 +10,11 @@
 
 typedef struct word_token_node {
     char *word;
+
     unsigned int token_id;
+    
     struct word_token_node *next;
+
 } word_token_node;
 
 extern word_token_node* hashTable[TABLE_SIZE];

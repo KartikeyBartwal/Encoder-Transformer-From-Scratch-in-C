@@ -6,7 +6,7 @@
 
 #include <ctype.h>  // FOR CHARACTER HANDLING FUNCTIONS (E.G. , TOLOWER )
 
-#include "custom_headers.c"
+#include "custom_headers.h"
 
 
 int main() {
