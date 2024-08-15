@@ -65,9 +65,3 @@ The embedding layer generates:
 
 ### E. Backpropagation
 - The project incorporates backpropagation, which is essential for training deep learning models. Each layer computes its own loss function, facilitating the update of weights and parameters in the self-attention layer, feedforward layers, and the three embedding layers.
-
-## Usage
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/yourusername/bert-from-scratch-in-c.git
