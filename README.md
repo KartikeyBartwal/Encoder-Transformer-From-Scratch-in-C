@@ -1,3 +1,5 @@
+ ![BERT arch 2](https://github.com/user-attachments/assets/6b890804-f0ff-44c2-adec-872dc7d8f922)
+ 
 # BERT from Scratch in C
 
 This project is an ambitious attempt to build the entire BERT (Bidirectional Encoder Representations from Transformers) architecture using the C programming language. The following sections outline the workflow and components of the implementation.
@@ -26,6 +28,8 @@ This project is an ambitious attempt to build the entire BERT (Bidirectional Enc
      ```
      [0, 0, 0, 0, 1, 1, 1, 1]
      ```
+     
+![Screenshot from 2024-08-15 12-32-22](https://github.com/user-attachments/assets/c6d9b902-50fe-4d01-9ddf-756450fc5168)
 
 5. **Masking**:
    - Random masks are assigned to 15% of the sequence according to the original BERT paper:
@@ -43,9 +47,13 @@ The embedding layer generates:
 1. **Token Embeddings**: Represents the input tokens.
 2. **Position Embeddings**: Encodes the position of each token in the sequence.
 3. **Segment Embeddings**: Indicates the sentence from which the token originates.
+   
+![BERT-input-representation-Sum-of-segment-position-and-token-embeddings-is-the-input](https://github.com/user-attachments/assets/99ca6326-9b11-46f0-b80c-76f219624c01)
 
 ### B. Self-Attention Layer
 - The resulting vector from the embedding layer passes through a self-attention mechanism that captures dependencies between tokens in the sequence.
+
+![Screenshot from 2024-08-15 12-39-09](https://github.com/user-attachments/assets/b582f556-845a-45b0-802b-5b38738dffdb)
 
 ### C. Feedforward Layers
 1. The output from the self-attention layer is passed through a feedforward layer followed by a Tanh activation function.
