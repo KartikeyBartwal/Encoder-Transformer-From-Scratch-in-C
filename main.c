@@ -6,7 +6,10 @@
 
 #include <ctype.h>  // FOR CHARACTER HANDLING FUNCTIONS (E.G. , TOLOWER )
 
-#include "custom_headers.h"
+/* Self Created header files */
+
+#include "Data_Loading_Cleaning.h"
+#include "Tokenizer.h"
 
 
 int main() {

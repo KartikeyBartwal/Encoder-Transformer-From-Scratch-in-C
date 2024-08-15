@@ -1,5 +1,5 @@
-#ifndef CUSTOM_HEADERS_H
-#define CUSTOM_HEADERS_H
+#ifndef TOKENIZER_H
+#define TOKENIZER_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,4 +46,4 @@ void Print_Tokens_And_Ids();
 // FUNCTION TO EXTRACT UNIQUE WORDS FROM A LIST OF SENTENCES
 void extractUniqueWords(char** sentences);
 
-#endif /* TEXT_PROCESSING_H */
+#endif /* TOKENIZER.H */
