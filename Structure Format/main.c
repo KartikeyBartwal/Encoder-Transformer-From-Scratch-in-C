@@ -2,12 +2,13 @@
 #include <unistd.h>
 #include <omp.h>
 
+#define MAX_SENTENCE_LENGTH 512
+
 /* Self Created header files */
 
 #include "Data_Loading_Cleaning.h"
 #include "Tokenizer.h"
 
-#define MAX_SENTENCE_LENGTH 512;
 
 int main() {
 
@@ -133,9 +134,9 @@ int main() {
 
         for( int j = 0; j < word_count; j++ ) {
 
-            // token_array[ j ] = getTokenId( words[ j ] );
+            token_array[ j ] = getTokenId( words[ j ] );
 
-           token_array[ j ] = 10;
+           // token_array[ j ] = 10;
 
         }
 
@@ -169,7 +170,7 @@ int main() {
 
    printf( " Sample of training data ( first 10 tokens of first 5 samples: \n" );
 
-  for( int i = 0; i < 5 && i < training_data_count; i++ ) {
+  for( int i = 0; i < 20 && i < training_data_count; i++ ) {
 
       printf( " Sample %d: " , i + 1);
 

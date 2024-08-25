@@ -46,6 +46,6 @@ void Print_Tokens_And_Ids();
 // FUNCTION TO EXTRACT UNIQUE WORDS FROM A LIST OF SENTENCES
 void extractUniqueWords(char** sentences);
 
-unsigned int getTokenId(const char* word)
+unsigned int getTokenId(const char* word);
 
 #endif /* TOKENIZER.H */
