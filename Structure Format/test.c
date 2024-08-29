@@ -2,32 +2,26 @@
 #include "transformer_block.h"
 #include <math.h>
 #include <stdlib.h>
-
+#include "Tokenizer.h"
 
 int main() {
+    // GENERATE EMBEDDING
 
-    initialize_matrices_from_files();
+    // PRINT THE EMBEDDING VALUES
 
-    print_matrix( "Key Matrix" , k_matrix);
+    for( int token_id = 0; token_id < 100; token_id++ ) {
 
-    print_matrix( "Query Matrix" , q_matrix );
+        float** embedding = Word_Embedding_Generation(token_id);
 
-    print_matrix( "Value Matrix" , v_matrix );
+        printf("Word Embedding for token ID %d:\n", token_id);
+        printf("{ %.4f, %.4f }\n", embedding[0][0], embedding[1][0]);
 
-    // // DEFINE POSITION INDEX AND VECTOR SIZE
-    // int index = 5;
-    // int vector_size = 10;
+        // FREE THE ALLOCATED MEMORY
+        free(embedding[0]);
+        free(embedding[1]);
+        free(embedding);
+    }
 
-    // // CALL THE POSITIONAL ENCODING FUNCTION
-    // double* encoding = positional_encoding(index, vector_size);
-
-    // // PRINT THE ENCODING VALUES
-    // for (int i = 0; i < vector_size; i++) {
-    //     printf("%f ", encoding[i]);
-    // }
-
-    // // FREE THE ALLOCATED MEMORY
-    // free(encoding);
 
     return 0;
 }

@@ -48,4 +48,13 @@ void extractUniqueWords(char** sentences);
 
 unsigned int getTokenId(const char* word);
 
+
+// FOR WORD EMBEDDINGS
+float generate_random();
+
+// FUNCTION TO GENERATE WORD EMBEDDING FOR A GIVEN TOKEN ID
+float** Word_Embedding_Generation( int token_id );
+
+float* getEmbedding(unsigned int token_id);
+
 #endif /* TOKENIZER.H */
