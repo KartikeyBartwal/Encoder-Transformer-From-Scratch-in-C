@@ -202,83 +202,40 @@ sleep( 2 );
     sleep( 2 );
 
 
-return 0;
 
 ////////   LEVEL3: MODEL TRAINING BEGINS   //////////////////////////
 
-#define BATCH_SIZE 32
+    int epochs = 1;
+    int num_samples = training_data_count;  // Assume we have 1000 samples, adjust as needed
 
-    int epochs = 100;
-    int num_samples = 1000;  // Assume we have 1000 samples, adjust as needed
 
-    #pragma omp parallel
-    {
-        #pragma omp for
-        for (int epoch = 1; epoch <= epochs; epoch++) {
-            printf("Epoch Number: %d\n", epoch);
+    printf("num samples: %d \n" , training_data_count );
 
-            float total_loss = 0.0f;
+    // RUN IT FOR 'epochs' NUMBER OF EPOCHS
 
-            // Process samples in batches
-            for (int batch_start = 0; batch_start < num_samples; batch_start += BATCH_SIZE) {
-                int batch_end = batch_start + BATCH_SIZE;
-                if (batch_end > num_samples) batch_end = num_samples;
+   for( int epoch = 1; epoch < epochs; epoch++ ) {
 
-                #pragma omp parallel for reduction(+:total_loss)
-                for (int sample = batch_start; sample < batch_end; sample++) {
-                    printf("Processing Sample: %d\n", sample);
+       printf( " Epoch: %d \n" , epoch );
 
-                    // REPLACE EVERY WORD WITH THEIR WORD EMBEDDING
-                    printf("Sample after replacing word by their word embedding:\n\n");
 
-                    // ADD POSITIONAL ENCODING
-                    printf("Adding positional encoding:\n\n");
-                    printf("Added positional encoding\n\n");
+       // CURRENTLY, KEEP BATCH SIZE AS 1
 
-                    // PASS THROUGH THE SELF ATTENTION LAYER
-                    printf("Passing through the self attention layer\n\n");
-                    printf("Attention Score Matrix:\n\n");
-                    printf("Concatenated our P with the attention score matrix\n\n");
+       for (int i = 0; i < num_samples; i++) {
 
-                    // FEED FORWARD LAYER
-                    printf("Passing to the feed forward layer of 512 nodes\n\n");
+           // PRINT THE CURRENT SAMPLE NUMBER
+           printf("Sample %d: ", i + 1);
 
-                    // GET THE OUTPUT VECTOR
-                    printf("Passing through the x-axis and y-axis node\n\n");
-                    printf("Output vector embedding:\n\n");
+           // ITERATE AND PRINT THE ELEMENTS OF THE i-th ARRAY IN TRAINING_DATA
+           for (int j = 0; j < MAX_SENTENCE_LENGTH; j++) {
 
-                    // CALCULATE THE LOSS
-                    float loss = 0.0f;  // Replace with actual loss calculation
-                    printf("Calculating the loss\n");
-                    printf("Loss: %f\n\n", loss);
+               printf("%d ", training_data[i][j]);
+           }
 
-                    total_loss += loss;
-                }
-
-                // Optionally, you can add a synchronization point here if needed
-                #pragma omp barrier
-            }
-
-            // PERFORM BACKPROPAGATION ON THE AVERAGE LOSS
-            float average_loss = total_loss / num_samples;
-
-            // BACKPROPAGATION
-            printf("Backpropagation\n\n");
-            printf("Weights updated\n\n");
-
-            // Optionally, you can add a synchronization point here if needed
-            #pragma omp barrier
-        }
+           // MOVE TO THE NEXT LINE AFTER PRINTING THE ARRAY
+           printf("\n");
+       }
 
     }
-
-
-///////////////////////////////// INFERENCE ///////////////////////////////////
-
-
-    printf( " Give the input: \n\n");
-
-
 
 
     return 0;
