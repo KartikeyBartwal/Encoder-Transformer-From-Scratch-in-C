@@ -26,6 +26,7 @@ double* positional_encoding( int index, int vector_size ) {
 /////////////////////// SELF ATTENTION ////////////////////////////
 
 #define MATRIX_SIZE 2
+#define EMBEDDING_DIM 2
 
 // DEFINE MATRICES
 
@@ -121,4 +122,88 @@ void print_matrix(const char* name, double matrix[MATRIX_SIZE][MATRIX_SIZE]) {
             printf("\n");
         }
         printf("\n");
+}
+
+// FUNCTION TO COMPUTE THE DOT PRODUCT OF TWO MATRICES
+void dot_product(double A[MATRIX_SIZE][MATRIX_SIZE], double B[MATRIX_SIZE][MATRIX_SIZE], double result[MATRIX_SIZE][MATRIX_SIZE]) {
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            result[i][j] = 0;
+            for (int k = 0; k < MATRIX_SIZE; k++) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+}
+
+// FUNCTION TO TRANSPOSE A MATRIX
+void transpose(double matrix[MATRIX_SIZE][MATRIX_SIZE], double transposed[MATRIX_SIZE][MATRIX_SIZE]) {
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            transposed[j][i] = matrix[i][j];
+        }
+    }
+}
+
+// FUNCTION TO APPLY SOFTMAX TO A MATRIX
+void softmax(double matrix[MATRIX_SIZE][MATRIX_SIZE]) {
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        double sum_exp = 0.0;
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            sum_exp += exp(matrix[i][j]);
+        }
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            matrix[i][j] = exp(matrix[i][j]) / sum_exp;
+        }
+    }
+}
+
+// FUNCTION TO CALCULATE ATTENTION SCORES
+void calculate_attention(double Q[MATRIX_SIZE][MATRIX_SIZE], double K[MATRIX_SIZE][MATRIX_SIZE], double V[MATRIX_SIZE][MATRIX_SIZE], double result[MATRIX_SIZE][MATRIX_SIZE]) {
+    double K_transposed[MATRIX_SIZE][MATRIX_SIZE];
+    double QK_product[MATRIX_SIZE][MATRIX_SIZE];
+
+    // TRANSPOSE THE K MATRIX
+    transpose(K, K_transposed);
+
+    // COMPUTE QK^T
+    dot_product(Q, K_transposed, QK_product);
+
+    // SCALE BY 1 / SQRT(d_k)
+    double scale_factor = 1.0 / sqrt((double)MATRIX_SIZE);
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            QK_product[i][j] *= scale_factor;
+        }
+    }
+
+    // APPLY SOFTMAX TO THE RESULTING MATRIX
+    softmax(QK_product);
+
+    // COMPUTE FINAL ATTENTION OUTPUT: SOFTMAX(QK^T) * V
+    dot_product(QK_product, V, result);
+}
+
+
+// Function to multiply two matrices
+void matrix_multiply(const float A[MATRIX_SIZE][EMBEDDING_DIM],
+                     const float B[EMBEDDING_DIM][EMBEDDING_DIM],
+                     float result[MATRIX_SIZE][EMBEDDING_DIM]) {
+    int i, j, k;
+
+    // Initialize result matrix to 0
+    for (i = 0; i < MATRIX_SIZE; i++) {
+        for (j = 0; j < EMBEDDING_DIM; j++) {
+            result[i][j] = 0.0;
+        }
+    }
+
+    // Perform matrix multiplication
+    for (i = 0; i < MATRIX_SIZE; i++) {
+        for (j = 0; j < EMBEDDING_DIM; j++) {
+            for (k = 0; k < EMBEDDING_DIM; k++) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
 }

@@ -1,3 +1,4 @@
+#include "transformer_block.h"
 #include <stdio.h>
 
 #include <unistd.h>
@@ -421,6 +422,47 @@ int main() {
 
             }
             free(sentence);
+
+
+
+        /////// PASS THE MATRIX TO THE SELF ATTENTION BLOCK////
+
+            initialize_matrices_from_files();
+
+            print_matrix("KEY MATRIX", k_matrix);
+            print_matrix("QUERY MATRIX", q_matrix);
+            print_matrix("VALUE MATRIX", v_matrix);
+
+            float final_k_matrix[MATRIX_SIZE][ 2 ];
+            float final_q_matrix[MATRIX_SIZE][ 2 ];
+            float final_v_matrix[MATRIX_SIZE][ 2 ];
+
+            matrix_multiply(embedding_matrix, k_matrix, final_k_matrix);
+            matrix_multiply(embedding_matrix, q_matrix, final_q_matrix);
+            matrix_multiply(embedding_matrix, v_matrix, final_v_matrix);
+
+
+            print_matrix("FINAL KEY MATRIX", final_k_matrix);
+            print_matrix("FINAL QUERY MATRIX", final_q_matrix);
+            print_matrix("FINAL VALUE MATRIX", final_v_matrix);
+
+
+        /*
+         APPLY THE FOLLOWING FUNCTION TO GET THE ATTENTION MATRIX
+
+        Attention( Q, K, V ) = SoftMax( QK^T  /  sqrt( dₖ)) V
+        */
+
+           double attention[ 512 ][ 2 ];
+           calculate_attention(final_q_matrix, final_k_matrix, final_v_matrix, attention);
+
+        // PRINT THE ATTENTION MATRIX
+        print_matrix("ATTENTION SCORES", attention);
+
+
+        // PRINT THE NEW MATRIX AFTER ADDING BOTH THE MATRICES
+
+
 
         }
 
