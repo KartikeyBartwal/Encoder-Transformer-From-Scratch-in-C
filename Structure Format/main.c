@@ -6,6 +6,8 @@
 #include <omp.h>
 
 #define MAX_SENTENCE_LENGTH 512
+#define MATRIX_SIZE 2
+#define EMBEDDING_DIM 2
 
 
 /* SELF CREATED HEADER FILES */
@@ -262,213 +264,172 @@ int main() {
 
 ////////   LEVEL3: MODEL TRAINING BEGINS   //////////////////////////
 
-    int epochs = 1;
+int epochs = 1;
 
-    int num_samples = training_data_count;  // ASSUME WE HAVE 1000 SAMPLES, ADJUST AS NEEDED
+int num_samples = training_data_count;  // ASSUME WE HAVE 1000 SAMPLES, ADJUST AS NEEDED
 
+printf("NUM SAMPLES: %d \n", training_data_count);
 
-    printf("NUM SAMPLES: %d \n" , training_data_count );
+for (int epoch = 0; epoch < epochs; epoch++) {
 
+    printf("Epoch: %d\n", epoch);
 
-    // RUN IT FOR 'EPOCHS' NUMBER OF EPOCHS
+    for (int sample_index = 0; sample_index < num_samples; sample_index++) {
 
-    for (int epoch = 0; epoch < epochs; epoch++) {
+        printf("Sample %d: ", sample_index + 1);
 
-        printf("Epoch: %d\n", epoch);
+        float* sentence = (float*)malloc(MAX_SENTENCE_LENGTH * sizeof(float));
 
+        if (sentence == NULL) {
 
-        // CURRENTLY, KEEP BATCH SIZE AS 1
+            printf("Memory allocation failed.\n");
 
-        for (int sample_index = 0; sample_index < num_samples; sample_index++) {
-
-
-            // PRINT THE CURRENT SAMPLE NUMBER
-
-            printf("Sample %d: ", sample_index + 1);
-
-
-            // PROCESSING THE i-th SENTENCE
-
-            float* sentence = (float*)malloc(MAX_SENTENCE_LENGTH * sizeof(float));
-
-            if (sentence == NULL) {
-
-                printf("Memory allocation failed.\n");
-
-                return 1;
-
-            }
-
-
-            // COPY CURRENT SAMPLE TO SENTENCE ARRAY
-
-            for (int sentence_index = 0; sentence_index < MAX_SENTENCE_LENGTH; sentence_index++) {
-
-                sentence[ sentence_index ] = training_data[ sample_index ][ sentence_index ];
-
-            }
-
-
-            printf("Current sample's first 10 elements: ");
-
-            for (int sentence_index = 0; sentence_index < 10; sentence_index++) {
-
-                printf(" %f, ", sentence[ sentence_index ] );
-
-            }
-
-            printf("\n");
-
-
-            int y_actual = 0;
-
-
-            // REMOVE THE LAST NON-ZERO VALUE AND REPLACE IT WITH 0, SET ITS VALUE TO y
-
-            for (int k = MAX_SENTENCE_LENGTH - 1; k >= 0; k--) {
-
-                if (sentence[k] != 0) { // IF CURRENT VALUE IS NON-ZERO
-
-                    y_actual = sentence[k]; // STORE THE LAST NON-ZERO VALUE IN y
-
-                    sentence[k] = 0; // REPLACE IT WITH 0
-
-                    break; // EXIT LOOP AFTER THE LAST NON-ZERO VALUE IS FOUND
-
-                }
-
-            }
-
-
-            // REPLACE THE WORDS BY THEIR WORD EMBEDDING
-
-            // ALLOCATE MEMORY FOR THE EMBEDDING MATRIX
-
-            float embedding_matrix[MAX_SENTENCE_LENGTH][2] = {0}; // 512 x 2 MATRIX
-
-
-            // REPLACE WORDS BY THEIR WORD EMBEDDINGS
-
-            for (int i = 0; i < MAX_SENTENCE_LENGTH; i++) {
-
-                if (sentence[i] != 0) {
-
-                    unsigned int token_id = (unsigned int)sentence[i];
-
-                    float* embedding = getEmbedding(token_id);
-
-                    embedding_matrix[i][0] = embedding[0];
-
-                    embedding_matrix[i][1] = embedding[1];
-
-                    free(embedding);
-
-                } else {
-
-                    // SET PADDING VALUES TO ZERO
-
-                    embedding_matrix[i][0] = 0.0f;
-
-                    embedding_matrix[i][1] = 0.0f;
-
-                }
-
-            }
-
-            sleep( 2 );
-
-            // PRINT THE FIRST 10 ROWS OF THE EMBEDDING MATRIX
-
-            printf("Embedding Matrix:\n");
-
-            for (int i = 0; i < 10; i++) {
-
-                printf(" [%f, %f] \n", embedding_matrix[i][0], embedding_matrix[i][1]);
-
-                if ((i + 1) % 10 == 0) { // PRINT THE FIRST 10 ROWS ONLY
-
-                    break;
-
-                }
-
-            }
-
-
-            printf("Processing Sentence %d...\n", sample_index + 1);
-
-
-
-            // ADD POSITIONAL ENCODING TO THE CURRENT FORMED MATRIX
-            sleep( 2 );
-
-
-            printf( " Adding positional encoding values to the matrix \n");
-
-
-            Add_Positional_Encoding( embedding_matrix , 512 );
-
-
-            printf("Matrix Post Positional Encoding:\n");
-
-            for (int i = 0; i < 10; i++) {
-
-                printf(" [%f, %f] \n", embedding_matrix[i][0], embedding_matrix[i][1]);
-
-                if ((i + 1) % 10 == 0) { // PRINT THE FIRST 10 ROWS ONLY
-
-                    break;
-
-                }
-
-            }
-            free(sentence);
-
-
-
-        /////// PASS THE MATRIX TO THE SELF ATTENTION BLOCK////
-
-            initialize_matrices_from_files();
-
-            print_matrix("KEY MATRIX", k_matrix);
-            print_matrix("QUERY MATRIX", q_matrix);
-            print_matrix("VALUE MATRIX", v_matrix);
-
-            float final_k_matrix[MATRIX_SIZE][ 2 ];
-            float final_q_matrix[MATRIX_SIZE][ 2 ];
-            float final_v_matrix[MATRIX_SIZE][ 2 ];
-
-            matrix_multiply(embedding_matrix, k_matrix, final_k_matrix);
-            matrix_multiply(embedding_matrix, q_matrix, final_q_matrix);
-            matrix_multiply(embedding_matrix, v_matrix, final_v_matrix);
-
-
-            print_matrix("FINAL KEY MATRIX", final_k_matrix);
-            print_matrix("FINAL QUERY MATRIX", final_q_matrix);
-            print_matrix("FINAL VALUE MATRIX", final_v_matrix);
-
-
-        /*
-         APPLY THE FOLLOWING FUNCTION TO GET THE ATTENTION MATRIX
-
-        Attention( Q, K, V ) = SoftMax( QK^T  /  sqrt( dₖ)) V
-        */
-
-           double attention[ 512 ][ 2 ];
-           calculate_attention(final_q_matrix, final_k_matrix, final_v_matrix, attention);
-
-        // PRINT THE ATTENTION MATRIX
-        print_matrix("ATTENTION SCORES", attention);
-
-
-        // PRINT THE NEW MATRIX AFTER ADDING BOTH THE MATRICES
-
-
+            return 1;
 
         }
 
-        printf("Epoch %d completed.\n", epoch);
+        for (int sentence_index = 0; sentence_index < MAX_SENTENCE_LENGTH; sentence_index++) {
+
+            sentence[sentence_index] = training_data[sample_index][sentence_index];
+
+        }
+
+        printf("Current sample's first 10 elements: ");
+
+        for (int sentence_index = 0; sentence_index < 10; sentence_index++) {
+
+            printf(" %f, ", sentence[sentence_index]);
+
+        }
+
+        printf("\n");
+
+        int y_actual = 0;
+
+        for (int k = MAX_SENTENCE_LENGTH - 1; k >= 0; k--) {
+
+            if (sentence[k] != 0) {
+
+                y_actual = sentence[k];
+
+                sentence[k] = 0;
+
+                break;
+
+            }
+
+        }
+
+        printf("max sentence length: %d \n", MAX_SENTENCE_LENGTH);
+        float embedding_matrix[MAX_SENTENCE_LENGTH][2] = {0}; // 512 x 2 MATRIX
+
+        for (int i = 0; i < MAX_SENTENCE_LENGTH; i++) {
+
+            if (sentence[i] != 0) {
+
+                unsigned int token_id = (unsigned int)sentence[i];
+
+                float* embedding = getEmbedding(token_id);
+
+                embedding_matrix[i][0] = embedding[0];
+
+                embedding_matrix[i][1] = embedding[1];
+
+                free(embedding);
+
+            } else {
+
+                embedding_matrix[i][0] = 0.0f;
+
+                embedding_matrix[i][1] = 0.0f;
+
+            }
+
+        }
+
+        sleep(2);
+
+        printf("Embedding Matrix:\n");
+
+        for (int i = 0; i < 10; i++) {
+
+            printf(" [%f, %f] \n", embedding_matrix[i][0], embedding_matrix[i][1]);
+
+            if ((i + 1) % 10 == 0) {
+
+                break;
+
+            }
+
+        }
+
+        printf("Processing Sentence %d...\n", sample_index + 1);
+
+        sleep(2);
+
+        printf("Adding positional encoding values to the matrix \n");
+
+        Add_Positional_Encoding(embedding_matrix, MAX_SENTENCE_LENGTH);
+
+        printf("Matrix Post Positional Encoding:\n");
+
+        for (int i = 0; i < 10; i++) {
+
+            printf(" [%f, %f] \n", embedding_matrix[i][0], embedding_matrix[i][1]);
+
+            if ((i + 1) % 10 == 0) {
+
+                break;
+
+            }
+
+        }
+
+        // SELF ATTENTION BLOCK
+
+        printf(" Self attention block \n");
+
+        initialize_matrices_from_files();
+
+        // PRINTING K MATRIX
+        printf("K Matrix:\n");
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            for (int j = 0; j < MATRIX_SIZE; j++) {
+                printf("%lf ", k_matrix[i][j]); // PRINT ELEMENT OF K MATRIX
+            }
+            printf("\n"); // NEW LINE AFTER EACH ROW
+        }
+
+        printf("\n"); // SEPARATION BETWEEN MATRICES
+
+        // PRINTING Q MATRIX
+        printf("Q Matrix:\n");
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            for (int j = 0; j < MATRIX_SIZE; j++) {
+                printf("%lf ", q_matrix[i][j]); // PRINT ELEMENT OF Q MATRIX
+            }
+            printf("\n"); // NEW LINE AFTER EACH ROW
+        }
+
+        printf("\n"); // SEPARATION BETWEEN MATRICES
+
+        // PRINTING V MATRIX
+        printf("V Matrix:\n");
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            for (int j = 0; j < MATRIX_SIZE; j++) {
+                printf("%lf ", v_matrix[i][j]); // PRINT ELEMENT OF V MATRIX
+            }
+            printf("\n"); // NEW LINE AFTER EACH ROW
+        }
 
     }
+
+
+
+
+    printf("Epoch %d completed.\n", epoch);
+
+}
             // REPLACE THE WORDS BY THEIR WORD EMBEDDING
 
             // ALLOCATE MEMORY FOR THE EMBEDDING MATRIX
