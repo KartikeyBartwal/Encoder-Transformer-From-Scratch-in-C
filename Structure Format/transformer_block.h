@@ -34,8 +34,10 @@ void transpose(double matrix[MATRIX_SIZE][MATRIX_SIZE], double transposed[MATRIX
 
 void calculate_attention(double Q[MATRIX_SIZE][MATRIX_SIZE], double K[MATRIX_SIZE][MATRIX_SIZE], double V[MATRIX_SIZE][MATRIX_SIZE], double result[MATRIX_SIZE][MATRIX_SIZE]);
 
-void matrix_multiply(const float A[MATRIX_SIZE][EMBEDDING_DIM],
-                     const float B[EMBEDDING_DIM][EMBEDDING_DIM],
-                     float result[MATRIX_SIZE][EMBEDDING_DIM]);
+void matrix_multiply(double A[][MATRIX_SIZE], double B[][MATRIX_SIZE], double result[][MATRIX_SIZE], int rowsA, int colsA, int colsB);
+
+void apply_softmax(double matrix[][MATRIX_SIZE], int rows, int cols);
+
+void compute_self_attention(float embedding_matrix[][MATRIX_SIZE], double k_matrix[][MATRIX_SIZE], double q_matrix[][MATRIX_SIZE], double v_matrix[][MATRIX_SIZE], int length, double self_attention_matrix[][MATRIX_SIZE]);
 
 #endif

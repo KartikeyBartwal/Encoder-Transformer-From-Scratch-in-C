@@ -456,8 +456,31 @@ for (int epoch = 0; epoch < epochs; epoch++) {
             printf("[%lf, %lf]\n", final_v_matrix[i][0], final_v_matrix[i][1]);
         }
 
-    }
 
+        // COMPUTE SELF-ATTENTION MATRIX SCORES
+        double self_attention_matrix[ MAX_SENTENCE_LENGTH ][ MATRIX_SIZE ] = { 0 };
+        compute_self_attention(embedding_matrix, final_k_matrix, final_q_matrix, final_v_matrix, MAX_SENTENCE_LENGTH, self_attention_matrix);
+
+        // PRINT THE SELF-ATTENTION MATRIX
+
+        printf(" Self-Attention Matrix: \n");
+
+        for( int i = 0; i < 10; i++ ) {
+
+            for( int j = 0; j < MATRIX_SIZE; j++ ) {
+
+                printf( "%lf ", self_attention_matrix[ i ][ j ] );
+            }
+
+            printf(" \n");
+        }
+
+
+
+
+
+
+    }
 
 
 

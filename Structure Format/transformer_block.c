@@ -27,6 +27,7 @@ double* positional_encoding( int index, int vector_size ) {
 
 #define MATRIX_SIZE 2
 #define EMBEDDING_DIM 2
+#define MAX_SENTENCE_LENGTH 512
 
 // DEFINE MATRICES
 
@@ -185,25 +186,74 @@ void calculate_attention(double Q[MATRIX_SIZE][MATRIX_SIZE], double K[MATRIX_SIZ
 }
 
 
-// Function to multiply two matrices
-void matrix_multiply(const float A[MATRIX_SIZE][EMBEDDING_DIM],
-                     const float B[EMBEDDING_DIM][EMBEDDING_DIM],
-                     float result[MATRIX_SIZE][EMBEDDING_DIM]) {
-    int i, j, k;
+// // Function to multiply two matrices
+// void matrix_multiply(const float A[MATRIX_SIZE][EMBEDDING_DIM],
+//                      const float B[EMBEDDING_DIM][EMBEDDING_DIM],
+//                      float result[MATRIX_SIZE][EMBEDDING_DIM]) {
+//     int i, j, k;
 
-    // Initialize result matrix to 0
-    for (i = 0; i < MATRIX_SIZE; i++) {
-        for (j = 0; j < EMBEDDING_DIM; j++) {
-            result[i][j] = 0.0;
-        }
-    }
+//     // Initialize result matrix to 0
+//     for (i = 0; i < MATRIX_SIZE; i++) {
+//         for (j = 0; j < EMBEDDING_DIM; j++) {
+//             result[i][j] = 0.0;
+//         }
+//     }
 
-    // Perform matrix multiplication
-    for (i = 0; i < MATRIX_SIZE; i++) {
-        for (j = 0; j < EMBEDDING_DIM; j++) {
-            for (k = 0; k < EMBEDDING_DIM; k++) {
+//     // Perform matrix multiplication
+//     for (i = 0; i < MATRIX_SIZE; i++) {
+//         for (j = 0; j < EMBEDDING_DIM; j++) {
+//             for (k = 0; k < EMBEDDING_DIM; k++) {
+//                 result[i][j] += A[i][k] * B[k][j];
+//             }
+//         }
+//     }
+// }
+
+// FUNCTION TO PERFORM MATRIX MULTIPLICATION
+void matrix_multiply(double A[][MATRIX_SIZE], double B[][MATRIX_SIZE], double result[][MATRIX_SIZE], int rowsA, int colsA, int colsB) {
+    for (int i = 0; i < rowsA; i++) {
+        for (int j = 0; j < colsB; j++) {
+            result[i][j] = 0;
+            for (int k = 0; k < colsA; k++) {
                 result[i][j] += A[i][k] * B[k][j];
             }
         }
     }
+}
+
+// FUNCTION TO APPLY SOFTMAX TO A MATRIX ROW
+void apply_softmax(double matrix[][MATRIX_SIZE], int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        double max_val = matrix[i][0];
+        for (int j = 1; j < cols; j++) {
+            if (matrix[i][j] > max_val) {
+                max_val = matrix[i][j];
+            }
+        }
+
+        double sum_exp = 0.0;
+        for (int j = 0; j < cols; j++) {
+            matrix[i][j] = exp(matrix[i][j] - max_val); // STABILIZE WITH MAX VALUE
+            sum_exp += matrix[i][j];
+        }
+
+        for (int j = 0; j < cols; j++) {
+            matrix[i][j] /= sum_exp; // NORMALIZE
+        }
+    }
+}
+
+
+// FUNCTION TO COMPUTE SELF-ATTENTION MATRIX
+void compute_self_attention(float embedding_matrix[][MATRIX_SIZE], double k_matrix[][MATRIX_SIZE], double q_matrix[][MATRIX_SIZE], double v_matrix[][MATRIX_SIZE], int length, double self_attention_matrix[][MATRIX_SIZE]) {
+    double attention_scores[MAX_SENTENCE_LENGTH][MATRIX_SIZE] = {0}; // TEMP MATRIX TO STORE ATTENTION SCORES
+
+    // COMPUTE ATTENTION SCORES BY MULTIPLYING Q MATRIX WITH TRANSPOSE OF K MATRIX
+    matrix_multiply(q_matrix, k_matrix, attention_scores, length, MATRIX_SIZE, MATRIX_SIZE);
+
+    // APPLY SOFTMAX TO THE ATTENTION SCORES
+    apply_softmax(attention_scores, length, MATRIX_SIZE);
+
+    // COMPUTE SELF-ATTENTION MATRIX BY MULTIPLYING ATTENTION SCORES WITH V MATRIX
+    matrix_multiply(attention_scores, v_matrix, self_attention_matrix, length, MATRIX_SIZE, MATRIX_SIZE);
 }
