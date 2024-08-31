@@ -422,6 +422,40 @@ for (int epoch = 0; epoch < epochs; epoch++) {
             printf("\n"); // NEW LINE AFTER EACH ROW
         }
 
+        // MULTIPLY THESE MATRICES WITH THE EMBEDDING MATRIX
+
+        double final_k_matrix[ MAX_SENTENCE_LENGTH ][ MATRIX_SIZE] = {0};
+        double final_q_matrix[ MAX_SENTENCE_LENGTH ][ MATRIX_SIZE] = {0};
+        double final_v_matrix[ MAX_SENTENCE_LENGTH ][ MATRIX_SIZE] = {0};
+
+
+        // MULTIPLY EMBEDDING MATRIX WITH K, Q, V MATRICES
+        for (int i = 0; i < MAX_SENTENCE_LENGTH; i++) {
+            for (int j = 0; j < MATRIX_SIZE; j++) {
+                for (int k = 0; k < MATRIX_SIZE; k++) {
+                    final_k_matrix[i][j] += embedding_matrix[i][k] * k_matrix[k][j];
+                    final_q_matrix[i][j] += embedding_matrix[i][k] * q_matrix[k][j];
+                    final_v_matrix[i][j] += embedding_matrix[i][k] * v_matrix[k][j];
+                }
+            }
+        }
+
+        // PRINT FINAL MATRICES
+        printf("Final K Matrix:\n");
+        for (int i = 0; i < 10; i++) {
+            printf("[%lf, %lf]\n", final_k_matrix[i][0], final_k_matrix[i][1]);
+        }
+
+        printf("Final Q Matrix:\n");
+        for (int i = 0; i < 10; i++) {
+            printf("[%lf, %lf]\n", final_q_matrix[i][0], final_q_matrix[i][1]);
+        }
+
+        printf("Final V Matrix:\n");
+        for (int i = 0; i < 10; i++) {
+            printf("[%lf, %lf]\n", final_v_matrix[i][0], final_v_matrix[i][1]);
+        }
+
     }
 
 
