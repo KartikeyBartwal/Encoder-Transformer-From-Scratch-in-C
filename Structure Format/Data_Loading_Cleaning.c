@@ -7,6 +7,8 @@
 #include <ctype.h>  // FOR CHARACTER HANDLING FUNCTIONS (E.G. , TOLOWER )
 
 
+
+
 // FUNCTION TO READ THE ENTIRE CONTENT OF A FILE AND RETURN IT AS A STRING
 char* readFileToString(const char *filename) {
 
@@ -31,7 +33,7 @@ char* readFileToString(const char *filename) {
 
 char** SplitSentences( char *raw_text ) {
 
-    // PUNCTUATION MARK USED TO SPLIT SENTENCES 
+    // PUNCTUATION MARK USED TO SPLIT SENTENCES
 
     const char *delimiters = ".!?";
 
@@ -40,7 +42,7 @@ char** SplitSentences( char *raw_text ) {
     char **sentences = malloc( 100 * sizeof( char* ));
 
 
-    // SPLIT THE TEXT INTO SENTENCES 
+    // SPLIT THE TEXT INTO SENTENCES
 
     char *token = strtok( raw_text , delimiters );
 
@@ -60,13 +62,13 @@ char** SplitSentences( char *raw_text ) {
 
         token = strtok( NULL , delimiters);
 
-    }   
+    }
 
-    // NULL TERMINATE THE LAST ELEMENT 
+    // NULL TERMINATE THE LAST ELEMENT
 
     sentences[ index ] = NULL;
 
-    return sentences;  // RETURN THE ARRAY OF SENTENCES 
+    return sentences;  // RETURN THE ARRAY OF SENTENCES
 
 
 };
@@ -105,12 +107,12 @@ char* Cleaned_Text(char *raw_text) {
 
     for (int i = 0; i < len; i++) {
 
-        // CONVERT TO LOWERCASE 
+        // CONVERT TO LOWERCASE
 
         char ch = tolower(raw_text[i]);
 
 
-        // REMOVE SPECIFIED CHARACTERS 
+        // REMOVE SPECIFIED CHARACTERS
 
         if (isalnum(ch)) { // KEEP ONLY ALPHANUMERIC CHARACTERS
 
@@ -126,12 +128,12 @@ char* Cleaned_Text(char *raw_text) {
     }
 
 
-    // NULL-TERMINATE THE CLEANED TEXT 
+    // NULL-TERMINATE THE CLEANED TEXT
 
     cleaned_text[j] = '\0';
 
 
-    // RETURN THE CLEANED TEXT 
+    // RETURN THE CLEANED TEXT
 
     return cleaned_text;
 }

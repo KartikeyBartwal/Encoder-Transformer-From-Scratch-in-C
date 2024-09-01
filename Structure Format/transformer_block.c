@@ -257,3 +257,12 @@ void compute_self_attention(float embedding_matrix[][MATRIX_SIZE], double k_matr
     // COMPUTE SELF-ATTENTION MATRIX BY MULTIPLYING ATTENTION SCORES WITH V MATRIX
     matrix_multiply(attention_scores, v_matrix, self_attention_matrix, length, MATRIX_SIZE, MATRIX_SIZE);
 }
+
+
+void add_matrices(float matrix1[][MATRIX_SIZE], double matrix2[][MATRIX_SIZE], double result_matrix[][MATRIX_SIZE], int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            result_matrix[i][j] = matrix1[i][j] + matrix2[i][j];
+        }
+    }
+}

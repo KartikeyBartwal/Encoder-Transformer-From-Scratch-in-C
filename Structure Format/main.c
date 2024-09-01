@@ -1,4 +1,3 @@
-#include "transformer_block.h"
 #include <stdio.h>
 
 #include <unistd.h>
@@ -17,6 +16,10 @@
 #include "Tokenizer.h"
 
 #include "Data_Preprocessing.h"
+
+#include "transformer_block.h"
+
+#include "feed_forward_layer.h"
 
 
 int main() {
@@ -463,7 +466,7 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         // PRINT THE SELF-ATTENTION MATRIX
 
-        printf(" Self-Attention Matrix: \n");
+        printf(" \n\nSelf-Attention Matrix: \n");
 
         for( int i = 0; i < 10; i++ ) {
 
@@ -477,8 +480,149 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
 
 
+        // ADD THE 'self_attention_matrix' AND THE 'embedding_matrix'
+
+        double context_matrix[ MAX_SENTENCE_LENGTH ][ 2 ] = { 0 };
+
+        add_matrices( embedding_matrix , self_attention_matrix , context_matrix, MAX_SENTENCE_LENGTH, MATRIX_SIZE );
+
+        printf("\n\nContext Matrix (embedding_matrix + self_attention_matrix:\n");
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < MATRIX_SIZE; j++) {
+                printf("%f ", context_matrix[i][j]);
+            }
+            printf("\n");
+        }
+
+        printf("\n\n");
 
 
+        //////////////////////////////////// FEED FORWARD LAYER ////////////////////
+
+
+        // INCREMENT THE ABSOLUTE VALUE OF THE COLUMN 1 BY 1
+
+        for( int i = 0; i < MAX_SENTENCE_LENGTH; i++ ) {
+
+            if( context_matrix[ i ][ 1 ] < 0 ) {
+                context_matrix[ i ][ 1 ] += -1;
+            }
+
+            else{
+                context_matrix[ i ][ 1 ] += 1;
+            }
+
+        }
+
+
+        double semi_final_layer_weights[ 512 ] = {0.0};
+
+        // DEFINE THE PATH TO YOUR FILES
+        const char* path = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/Semi_Final Multi-layered perceptron Weights/";
+
+        // READ WEIGHTS FROM FILES
+        read_weights(path, semi_final_layer_weights, 512 );
+
+        printf("\n\n");
+
+        // PRINT THE FIRST 10 WEIGHTS TO VERIFY
+        for (int i = 0; i < 10; i++) {
+            printf("semi_final_layer_weights[%d] = %f\n", i, semi_final_layer_weights[i]);
+        }
+        printf(".\n.\n.\n");
+        printf("semi_final_layer_weights[%d] = %f\n", 511, semi_final_layer_weights[510]);
+        printf("semi_final_layer_weights[%d] = %f\n", 512, semi_final_layer_weights[511]);
+
+
+        double semi_final_layer_nodes[ 512 ] = {0.0};
+
+        for( int row = 0; row < 512; row++ ) {
+
+            double value = context_matrix[ row ][ 0 ] * semi_final_layer_weights[ row ]  + context_matrix[ row ][ 1 ] * semi_final_layer_weights[ row ];
+
+            // PASS THIS VALUE THROUGH SOME ACTIVATION FUNCTION
+
+            /*
+           ACTIVATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            */
+            semi_final_layer_nodes[ row ] = value;
+        }
+
+        printf("\n\n Semi Final Layer Node Values: \n");
+
+        for( int i = 0; i < 10; i++ ) {
+
+            printf("%lf \n" , semi_final_layer_nodes[ i ]);
+        }
+
+        printf(".\n.\n.\n");
+
+        for( int i = 500; i < 512; i++ ) {
+
+            printf("%lf \n", semi_final_layer_nodes[ i ]);
+        }
+
+
+
+        double final_layer_weights[ 1024 ] = { 0.0 };
+
+        const char* path_2 = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/Final Multi-layered perceptron weights/";
+        read_weights( path_2 , final_layer_weights , 1024);
+
+        printf("\n\n");
+
+        for (int i = 0; i < 10; i++) {
+            printf("final_layer_weights[%d] = %f\n", i, final_layer_weights[i]);
+        }
+        printf(".\n.\n.\n");
+        printf("final_layer_weights[%d] = %f\n", 1022, final_layer_weights[1022]);
+        printf("final_layer_weights[%d] = %f\n", 1023, final_layer_weights[1023]);
+
+
+
+        double final_node_values[ 2 ] = {0.0};
+
+        // 0 - 512
+        // 1 - 513
+        // 2 - 514
+        // 3 - 515
+        //     .
+        //     .
+        //     .
+        //     .
+        // 511 - 1023
+
+        // VALUE FOR NODE 1
+
+        double total_value_node_1 = 0;
+
+        for( int i = 0; i < 512; i++ ) {
+
+            total_value_node_1 += semi_final_layer_nodes[ i ] * final_layer_weights[ i ];
+        }
+
+        // PASS total_value_node_1 TO AN ACTIVATION FUNCTION
+
+
+        // VALUE FOR NODE 2
+
+        double total_value_node_2 = 0;
+
+        for( int i = 0; i < 512; i++ ) {
+
+            total_value_node_2 += semi_final_layer_nodes[ i ] * final_layer_weights[ i + 512 ];
+        }
+
+        // HERE IS THE MODEL'S OUTPUT
+
+        double output_embedding[ 2 ] = { total_value_node_1 , total_value_node_2 };
+
+
+
+        printf("\n\nOutput Embedding: %lf, %lf \n", output_embedding[ 0 ], output_embedding[ 1 ] );
+
+
+        printf(" \n\n Sample Computed.\n\n");
 
     }
 
@@ -487,35 +631,6 @@ for (int epoch = 0; epoch < epochs; epoch++) {
     printf("Epoch %d completed.\n", epoch);
 
 }
-            // REPLACE THE WORDS BY THEIR WORD EMBEDDING
-
-            // ALLOCATE MEMORY FOR THE EMBEDDING MATRIX
-            // float embedding_matrix[MAX_SENTENCE_LENGTH][2] = {0}; // 512 x 2 MATRIX
-
-            // REPLACE WORDS BY THEIR WORD EMBEDDINGS
-            // for (int i = 0; i < MAX_SENTENCE_LENGTH; i++) {
-            //     if (sentence[i] != 0) {
-            //         unsigned int token_id = (unsigned int)sentence[i];
-            //         printf("token id: %d \n" , token_id);
-            //         float* embedding = getEmbedding(token_id);
-            //         embedding_matrix[i][0] = embedding[0];
-            //         embedding_matrix[i][1] = embedding[1];
-            //         free( embedding );
-            //     } else {
-            //         // SET PADDING VALUES TO ZERO
-            //         embedding_matrix[i][0] = 0.0f;
-            //         embedding_matrix[i][1] = 0.0f;
-            //     }
-            // }
-
-            // PRINT THE FIRST 10 ROWS OF THE EMBEDDING MATRIX
-            // printf("Embedding Matrix:\n");
-            // for (int i = 0; i < 10; i++) {
-            //     printf(" [%f, %f] \n", embedding_matrix[i][0], embedding_matrix[i][1]);
-            //     if ((i + 1) % 10 == 0) { // PRINT THE FIRST 10 ROWS ONLY
-            //         break;
-            //     }
-            // }
 
 
     return 0;

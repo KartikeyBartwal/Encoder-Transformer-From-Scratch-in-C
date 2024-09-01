@@ -40,4 +40,6 @@ void apply_softmax(double matrix[][MATRIX_SIZE], int rows, int cols);
 
 void compute_self_attention(float embedding_matrix[][MATRIX_SIZE], double k_matrix[][MATRIX_SIZE], double q_matrix[][MATRIX_SIZE], double v_matrix[][MATRIX_SIZE], int length, double self_attention_matrix[][MATRIX_SIZE]);
 
+void add_matrices(float matrix1[][MATRIX_SIZE], double matrix2[][MATRIX_SIZE], double result_matrix[][MATRIX_SIZE], int rows, int cols);
+
 #endif
