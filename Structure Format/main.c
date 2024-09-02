@@ -1,5 +1,6 @@
+#include "backpropagation.h"
 #include <stdio.h>
-
+#include <math.h>
 #include <unistd.h>
 
 #include <omp.h>
@@ -323,6 +324,8 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         }
 
+        printf("y_actual token: %d \n" , y_actual);
+
         printf("max sentence length: %d \n", MAX_SENTENCE_LENGTH);
         float embedding_matrix[MAX_SENTENCE_LENGTH][2] = {0}; // 512 x 2 MATRIX
 
@@ -332,13 +335,14 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
                 unsigned int token_id = (unsigned int)sentence[i];
 
-                float* embedding = getEmbedding(token_id);
+                double curr_vector_embedding[ 2 ];
 
-                embedding_matrix[i][0] = embedding[0];
+                getEmbeddingByTokenId( token_id , curr_vector_embedding );
 
-                embedding_matrix[i][1] = embedding[1];
+                embedding_matrix[i][0] = ( float ) curr_vector_embedding[0];
 
-                free(embedding);
+                embedding_matrix[i][1] = ( float ) curr_vector_embedding[1];
+
 
             } else {
 
@@ -617,12 +621,24 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         double output_embedding[ 2 ] = { total_value_node_1 , total_value_node_2 };
 
-
-
         printf("\n\nOutput Embedding: %lf, %lf \n", output_embedding[ 0 ], output_embedding[ 1 ] );
 
 
-        printf(" \n\n Sample Computed.\n\n");
+        ////////////////// COMPUTE THE LOSS FOR BACKPROPAGATION ////////////////////
+
+        double expected_embedding[ 2 ];
+
+        getEmbeddingByTokenId( y_actual, expected_embedding );
+
+        printf("\n Expected Embedding: %lf, %lf \n", expected_embedding[ 0 ], expected_embedding[ 1 ] );
+
+        double loss = calculate_mse( output_embedding , expected_embedding , 2 );
+
+        printf(" loss: %lf \n\n\n" , loss);
+
+
+        ///////////////////////////////////////// BACKPROPAGATION ///////////////////////////////////////
+
 
     }
 

@@ -57,4 +57,6 @@ float** Word_Embedding_Generation( int token_id );
 
 float* getEmbedding(unsigned int token_id);
 
+void getEmbeddingByTokenId(unsigned int token_id, double expected_embedding[2]);
+
 #endif /* TOKENIZER.H */

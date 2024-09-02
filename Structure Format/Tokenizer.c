@@ -246,18 +246,30 @@ void extractUniqueWords(char** sentences) {
     }
 }
 
+// FUNCTION TO GET EMBEDDING FOR A GIVEN TOKEN ID AND RETURN AS DOUBLE ARRAY OF 2 ELEMENTS
+void getEmbeddingByTokenId(unsigned int token_id, double expected_embedding[2]) {
 
-// FUNCTION TO GET EMBEDDING FOR A GIVEN TOKEN ID
-float* getEmbedding(unsigned int token_id) {
-    // Create a dummy embedding generator
-    float* embedding = (float*)malloc(2 * sizeof(float));
-    if (!embedding) {
-        printf("Memory allocation failed for embedding.\n");
-        exit(EXIT_FAILURE);
+    // ITERATE OVER THE ENTIRE HASH TABLE
+    for (int i = 0; i < TABLE_SIZE; i++) {
+
+        word_token_node* current = hashTable[i];
+
+        // TRAVERSE THE LINKED LIST AT EACH HASH INDEX
+        while (current) {
+
+            // CHECK IF THE TOKEN ID MATCHES
+            if (current->token_id == token_id) {
+
+                // ASSIGN EMBEDDING VALUES TO OUTPUT ARRAY
+                expected_embedding[0] = (double)current->embedding[0];
+                expected_embedding[1] = (double)current->embedding[1];
+
+                return ;  // RETURN 1 IF SUCCESSFUL
+            }
+
+            current = current->next;
+        }
     }
-    float param_1 = generate_random();
-    float param_2 = generate_random();
-    embedding[0] = sin(token_id) * param_1;
-    embedding[1] = cos(token_id) * param_2;
-    return embedding;
+
+    return ; // TOKEN ID NOT FOUND, RETURN
 }
