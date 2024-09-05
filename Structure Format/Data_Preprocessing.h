@@ -12,6 +12,6 @@
 
 void min_max_normalize_and_scale(float* data, size_t size, float new_min, float new_max);
 size_t get_meaningful_length(const float* data, size_t size);
-void Add_Positional_Encoding(float embedding_matrix[][2], int max_sentence_length);
+void Add_Positional_Encoding(float embedding_matrix[][ 20 ], int max_sentence_length);
 
 #endif // DATA_PREPROCESSING_H

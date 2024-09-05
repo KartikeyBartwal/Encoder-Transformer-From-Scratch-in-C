@@ -12,7 +12,7 @@ typedef struct word_token_node {
     char *word;              // THE WORD
     unsigned int token_id;   // THE UNIQUE TOKEN ID
     struct word_token_node *next; // POINTER TO THE NEXT NODE IN THE LINKED LIST
-    float embedding[ 2 ];  // THE 2-VALUE WORD EMBEDDING
+    float embedding[ 20 ];  // THE 2-VALUE WORD EMBEDDING
 
 } word_token_node;
 
@@ -95,24 +95,41 @@ int isWordPresent(const char* word) {
 // FUNCTION TO PRINT ALL UNIQUE WORDS, THEIR TOKEN IDS, AND EMBEDDINGS
 void Print_Tokens_And_Ids() {
 
-    printf("TOKEN   VS  TOKEN_ID   VS  EMBEDDING:\n");
-    printf("Table Size: %d \n", TABLE_SIZE);
+    // PRINT HEADER FOR OUTPUT WITH BETTER ALIGNMENT
+    printf("------------------------------------------------------------\n");
+    printf("| %-20s | %-10s | %-30s |\n", "TOKEN", "TOKEN_ID", "EMBEDDING");
+    printf("------------------------------------------------------------\n");
 
+    // ITERATE OVER THE HASH TABLE
     for (int i = 0; i < TABLE_SIZE; i++) {
 
         word_token_node* current = hashTable[i]; // CHANGED NODE TO WORD_TOKEN_NODE
 
+        // TRAVERSE THE LINKED LIST AT EACH HASH INDEX
         while (current) {
 
-            // PRINT WORD, TOKEN ID, AND EMBEDDING VALUES
-            printf("%s : %d : { %.4f, %.4f }\n", current->word, current->token_id, current->embedding[0], current->embedding[1]);
+            // PRINT WORD AND TOKEN ID WITH ALIGNMENT
+            printf("| %-20s | %-10d | { ", current->word, current->token_id);
 
-            current = current->next;
+            // PRINT ALL 20 ELEMENTS OF THE EMBEDDING
+            for (int j = 0; j < 20; j++) {
+
+                printf("%.4f", current->embedding[j]);
+
+                // ADD A COMMA BETWEEN ELEMENTS, EXCEPT AFTER THE LAST ELEMENT
+                if (j < 19) {
+                    printf(", ");
+                }
+            }
+
+            printf(" } |\n"); // CLOSE THE EMBEDDING BRACKET AND COLUMN
+            printf("------------------------------------------------------------\n");
+
+            current = current->next; // MOVE TO THE NEXT NODE
         }
-
     }
-
 }
+
 
 
 // FUNCTION TO GET TOKEN ID FOR A WORD
@@ -147,8 +164,11 @@ float generate_random() {
 // FUNCTION TO GENERATE WORD EMBEDDING FOR A GIVEN TOKEN ID
 float** Word_Embedding_Generation(int token_id) {
 
-    // ALLOCATE MEMORY FOR A 2D ARRAY (2 X 1)
-    float** embedding = malloc(2 * sizeof(float*));
+    // DEFINE THE SIZE OF THE EMBEDDING
+    int size = 20;
+
+    // ALLOCATE MEMORY FOR A 2D ARRAY (20 X 1)
+    float** embedding = malloc(size * sizeof(float*));
 
     // CHECK IF MEMORY ALLOCATION SUCCEEDED
     if (embedding == NULL) {
@@ -158,41 +178,32 @@ float** Word_Embedding_Generation(int token_id) {
         return NULL;
     }
 
-    embedding[0] = malloc(sizeof(float));
+    // ALLOCATE MEMORY FOR EACH ROW
+    for (int i = 0; i < size; i++) {
+        embedding[i] = malloc(sizeof(float));
 
-    // CHECK IF MEMORY ALLOCATION SUCCEEDED
-    if (embedding[0] == NULL) {
+        // CHECK IF MEMORY ALLOCATION SUCCEEDED FOR EACH ROW
+        if (embedding[i] == NULL) {
 
-        printf("Memory allocation failed for embedding[0].\n");
+            printf("Memory allocation failed for embedding[%d].\n", i);
 
-        free(embedding); // FREE PREVIOUSLY ALLOCATED MEMORY
+            // FREE PREVIOUSLY ALLOCATED MEMORY
+            for (int j = 0; j < i; j++) {
+                free(embedding[j]);
+            }
+            free(embedding);
 
-        return NULL;
+            return NULL;
+        }
     }
 
-    embedding[1] = malloc(sizeof(float));
+    // GENERATE RANDOM PARAMETERS AND COMPUTE EMBEDDING VALUES
+    for (int i = 0; i < size; i++) {
+        float param = generate_random();  // GENERATE RANDOM PARAMETER BETWEEN 0 AND 1
 
-    // CHECK IF MEMORY ALLOCATION SUCCEEDED
-    if (embedding[1] == NULL) {
-
-        printf("Memory allocation failed for embedding[1].\n");
-
-        free(embedding[0]); // FREE PREVIOUSLY ALLOCATED MEMORY
-
-        free(embedding);
-
-        return NULL;
+        // COMPUTE EMBEDDING VALUES USING SIN AND COS FUNCTIONS
+        embedding[i][0] = (i % 2 == 0 ? sin(token_id) : cos(token_id)) * param;
     }
-
-    // GENERATE RANDOM PARAMETERS BETWEEN 0 AND 1
-    float param_1 = generate_random();
-
-    float param_2 = generate_random();
-
-    // COMPUTE EMBEDDING VALUES
-    embedding[0][0] = sin(token_id) * param_1;
-
-    embedding[1][0] = cos(token_id) * param_2;
 
     return embedding;
 }
@@ -201,60 +212,74 @@ float** Word_Embedding_Generation(int token_id) {
 // FUNCTION TO EXTRACT UNIQUE WORDS FROM A LIST OF SENTENCES AND GENERATE EMBEDDINGS
 void extractUniqueWords(char** sentences) {
 
+    // DEFINE DELIMITERS FOR TOKENIZATION
     char delimiters[] = " ,.;!?-";
 
+    // ITERATE OVER EACH SENTENCE
     for (int i = 0; sentences[i] != NULL; i++) {
 
+        // DUPLICATE THE SENTENCE TO AVOID MODIFYING THE ORIGINAL
         char* sentence = strdup(sentences[i]);
 
+        // CHECK IF MEMORY ALLOCATION FOR THE SENTENCE SUCCEEDED
         if (sentence == NULL) {
             printf("Memory allocation failed for sentence.\n");
             continue;
         }
 
+        // TOKENIZE THE SENTENCE USING THE DELIMITERS
         char* token = strtok(sentence, delimiters);
 
         while (token != NULL) {
 
+            // CHECK IF THE WORD IS NOT ALREADY PRESENT
             if (!isWordPresent(token)) {
 
-                insertWord(token);
+                insertWord(token);  // INSERT THE WORD INTO THE DATA STRUCTURE
 
-                unsigned int token_id = getTokenId(token);
+                unsigned int token_id = getTokenId(token);  // GET TOKEN ID FOR THE WORD
 
-                float** embedding = Word_Embedding_Generation(token_id);
+                float** embedding = Word_Embedding_Generation(token_id);  // GENERATE EMBEDDING FOR THE WORD
 
+                // CHECK IF EMBEDDING GENERATION SUCCEEDED
                 if (embedding == NULL) {
                     printf("Embedding generation failed.\n");
                     continue;
                 }
 
+                // FIND THE CORRECT LOCATION IN THE HASH TABLE
                 unsigned int index = hash(token);
                 word_token_node* current = hashTable[index];
 
+                // TRAVERSE THE LINKED LIST TO FIND THE WORD TOKEN NODE
                 while (current) {
                     if (strcmp(current->word, token) == 0) {
-                        current->embedding[0] = embedding[0][0];
-                        current->embedding[1] = embedding[1][0];
+                        // COPY ALL 20 ELEMENTS OF THE EMBEDDING
+                        for (int j = 0; j < 20; j++) {
+                            current->embedding[j] = embedding[j][0];
+                        }
                         break;
                     }
                     current = current->next;
                 }
 
-                free(embedding[0]);
-                free(embedding[1]);
+                // FREE THE MEMORY ALLOCATED FOR EMBEDDING
+                for (int j = 0; j < 20; j++) {
+                    free(embedding[j]);
+                }
                 free(embedding);
             }
 
+            // GET THE NEXT TOKEN
             token = strtok(NULL, delimiters);
         }
 
-        free(sentence);
+        free(sentence);  // FREE THE DUPLICATED SENTENCE
     }
 }
 
 // FUNCTION TO GET EMBEDDING FOR A GIVEN TOKEN ID AND RETURN AS DOUBLE ARRAY OF 2 ELEMENTS
-void getEmbeddingByTokenId(unsigned int token_id, double expected_embedding[2]) {
+void getEmbeddingByTokenId(unsigned int token_id, double expected_embedding[20]) {
 
     // ITERATE OVER THE ENTIRE HASH TABLE
     for (int i = 0; i < TABLE_SIZE; i++) {
@@ -268,15 +293,18 @@ void getEmbeddingByTokenId(unsigned int token_id, double expected_embedding[2]) 
             if (current->token_id == token_id) {
 
                 // ASSIGN EMBEDDING VALUES TO OUTPUT ARRAY
-                expected_embedding[0] = (double)current->embedding[0];
-                expected_embedding[1] = (double)current->embedding[1];
+                for (int j = 0; j < 20; j++) {
 
-                return ;  // RETURN 1 IF SUCCESSFUL
+                    expected_embedding[j] = (double)current->embedding[j];
+                }
+
+                return;  // RETURN IF SUCCESSFUL
             }
 
             current = current->next;
         }
     }
 
-    return ; // TOKEN ID NOT FOUND, RETURN
+    // TOKEN ID NOT FOUND, RETURN
+    return;
 }

@@ -5,8 +5,8 @@
 #include <omp.h>
 
 #define MAX_SENTENCE_LENGTH 512
-#define MATRIX_SIZE 2
-#define EMBEDDING_DIM 2
+#define MATRIX_SIZE 20
+#define EMBEDDING_DIM 20
 #define LEARNING_RATE 0.01
 
 /* SELF CREATED HEADER FILES */
@@ -278,17 +278,26 @@ printf("NUM SAMPLES: %d \n", training_data_count);
 
 
 
-
 // LOAD EVERYTHING YOU NEED TO LOAD INTO RAM BEFORE YOU START TRAINING THE MODEL
 
 
 ////////////////////////// LOAD THE SELF ATTENTION BLOCK /////////////////////////////////
 initialize_matrices_from_files();
 
+printf("=== KEY MATRIX ===\n ");
+print_matrix( k_matrix );
+
+printf("=== QUERY MATRIX ===\n ");
+print_matrix( q_matrix );
+
+printf("=== VALUE MATRIX ===\n ");
+print_matrix( v_matrix );
+
+
 ///////////////////////// SEMI FINAL LAYER NODES//////////////////////////////////
-double semi_final_layer_weights[ 512 ] = {0.0};
+double semi_final_layer_weights[ 512 * MATRIX_SIZE ] = {0.0};
 const char* path = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/Semi_Final Multi-layered perceptron Weights/";
-read_weights(path, semi_final_layer_weights, 512 );
+read_weights(path, semi_final_layer_weights, 512 * MATRIX_SIZE);
 
 
 ///////////////////////// FINAL LAYER NODES//////////////////////////////////
@@ -353,10 +362,10 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         }
 
-        printf("y_actual token: %d \n" , y_actual);
+        // printf("y_actual token: %d \n" , y_actual);
 
-        printf("max sentence length: %d \n", MAX_SENTENCE_LENGTH);
-        float embedding_matrix[MAX_SENTENCE_LENGTH][2] = {0}; // 512 x 2 MATRIX
+        // printf("max sentence length: %d \n", MAX_SENTENCE_LENGTH);
+        float embedding_matrix[MAX_SENTENCE_LENGTH][ MATRIX_SIZE ] = {0}; // 512 x 20 MATRIX
 
         for (int i = 0; i < MAX_SENTENCE_LENGTH; i++) {
 
@@ -499,7 +508,7 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         // PRINT THE SELF-ATTENTION MATRIX
 
-        printf(" \n\nSelf-Attention Matrix: \n");
+         printf(" \n\nSelf-Attention Matrix: \n");
 
         for( int i = 0; i < 10; i++ ) {
 
@@ -515,19 +524,19 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         // ADD THE 'self_attention_matrix' AND THE 'embedding_matrix'
 
-        double context_matrix[ MAX_SENTENCE_LENGTH ][ 2 ] = { 0 };
+        double context_matrix[ MAX_SENTENCE_LENGTH ][ MATRIX_SIZE ] = { 0 };
 
         add_matrices( embedding_matrix , self_attention_matrix , context_matrix, MAX_SENTENCE_LENGTH, MATRIX_SIZE );
 
-        printf("\n\nContext Matrix (embedding_matrix + self_attention_matrix:\n");
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < MATRIX_SIZE; j++) {
-                printf("%f ", context_matrix[i][j]);
-            }
-            printf("\n");
-        }
+        // printf("\n\nContext Matrix (embedding_matrix + self_attention_matrix:\n");
+        // for (int i = 0; i < 10; i++) {
+        //     for (int j = 0; j < MATRIX_SIZE; j++) {
+        //         printf("%f ", context_matrix[i][j]);
+        //     }
+        //     printf("\n");
+        // }
 
-        printf("\n\n");
+        // printf("\n\n");
 
 
         //////////////////////////////////// FEED FORWARD LAYER ////////////////////
@@ -548,15 +557,15 @@ for (int epoch = 0; epoch < epochs; epoch++) {
         }
 
 
-        printf("\n\n");
+        // printf("\n\n");
 
-        // PRINT THE FIRST 10 WEIGHTS TO VERIFY
-        for (int i = 0; i < 10; i++) {
-            printf("semi_final_layer_weights[%d] = %f\n", i, semi_final_layer_weights[i]);
-        }
-        printf(".\n.\n.\n");
-        printf("semi_final_layer_weights[%d] = %f\n", 511, semi_final_layer_weights[510]);
-        printf("semi_final_layer_weights[%d] = %f\n", 512, semi_final_layer_weights[511]);
+        // // PRINT THE FIRST 10 WEIGHTS TO VERIFY
+        // for (int i = 0; i < 10; i++) {
+        //     printf("semi_final_layer_weights[%d] = %f\n", i, semi_final_layer_weights[i]);
+        // }
+        // printf(".\n.\n.\n");
+        // printf("semi_final_layer_weights[%d] = %f\n", 511, semi_final_layer_weights[510]);
+        // printf("semi_final_layer_weights[%d] = %f\n", 512, semi_final_layer_weights[511]);
 
 
         double semi_final_layer_nodes[ 512 ] = {0.0};
@@ -573,29 +582,29 @@ for (int epoch = 0; epoch < epochs; epoch++) {
             semi_final_layer_nodes[ row ] = leaky_relu( value  , 0.01);
         }
 
-        printf("\n\n Semi Final Layer Node Values: \n");
+        // printf("\n\n Semi Final Layer Node Values: \n");
 
-        for( int i = 0; i < 10; i++ ) {
+        // for( int i = 0; i < 10; i++ ) {
 
-            printf("%lf \n" , semi_final_layer_nodes[ i ]);
-        }
+        //     printf("%lf \n" , semi_final_layer_nodes[ i ]);
+        // }
 
-        printf(".\n.\n.\n");
+        // printf(".\n.\n.\n");
 
-        for( int i = 500; i < 512; i++ ) {
+        // for( int i = 500; i < 512; i++ ) {
 
-            printf("%lf \n", semi_final_layer_nodes[ i ]);
-        }
+        //     printf("%lf \n", semi_final_layer_nodes[ i ]);
+        // }
 
 
-        printf("\n\n");
+        // printf("\n\n");
 
-        for (int i = 0; i < 10; i++) {
-            printf("final_layer_weights[%d] = %f\n", i, final_layer_weights[i]);
-        }
-        printf(".\n.\n.\n");
-        printf("final_layer_weights[%d] = %f\n", 1022, final_layer_weights[1022]);
-        printf("final_layer_weights[%d] = %f\n", 1023, final_layer_weights[1023]);
+        // for (int i = 0; i < 10; i++) {
+        //     printf("final_layer_weights[%d] = %f\n", i, final_layer_weights[i]);
+        // }
+        // printf(".\n.\n.\n");
+        // printf("final_layer_weights[%d] = %f\n", 1022, final_layer_weights[1022]);
+        // printf("final_layer_weights[%d] = %f\n", 1023, final_layer_weights[1023]);
 
 
 
@@ -637,7 +646,7 @@ for (int epoch = 0; epoch < epochs; epoch++) {
         // APPLY THE SWISH ACTIVATION FUNCTION TO THE OVERALL OUTPUT
         double output_embedding[ 2 ] = { swish( total_value_node_1 ) , swish( total_value_node_2 ) };
 
-        printf("\n\nOutput Embedding: %lf, %lf \n", output_embedding[ 0 ], output_embedding[ 1 ] );
+        // printf("\n\nOutput Embedding: %lf, %lf \n", output_embedding[ 0 ], output_embedding[ 1 ] );
 
 
         ////////////////// COMPUTE THE LOSS FOR BACKPROPAGATION ////////////////////
@@ -646,11 +655,11 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         getEmbeddingByTokenId( y_actual, expected_embedding );
 
-        printf("\n Expected Embedding: %lf, %lf \n", expected_embedding[ 0 ], expected_embedding[ 1 ] );
+        // printf("\n Expected Embedding: %lf, %lf \n", expected_embedding[ 0 ], expected_embedding[ 1 ] );
 
         double loss = calculate_mse( output_embedding , expected_embedding , 2 );
 
-        printf(" loss: %lf \n\n\n" , loss);
+        // printf(" loss: %lf \n\n\n" , loss);
 
         total_loss += loss;
 
@@ -659,20 +668,20 @@ for (int epoch = 0; epoch < epochs; epoch++) {
         double learning_rate = ( double ) LEARNING_RATE;
 
         // UPDATE THE LAST LAYER WEIGHTS
-        update_weights_last_layer( loss , learning_rate , final_layer_weights , semi_final_layer_weights, 1024 , 512, 100 );
+        update_weights_last_layer( loss , learning_rate , final_layer_weights , semi_final_layer_weights, 1024 , 512, 1 );
 
-        printf("\n\n");
+        // printf("\n\n");
 
         // UPDATE THE SECOND LAYER LAYER WEIGHTS
 
-        update_semi_final_layer_weights(loss, learning_rate, semi_final_layer_weights, 512, 100);
+        update_semi_final_layer_weights(loss, learning_rate, semi_final_layer_weights, 512, 1 );
 
         // UPDATE THE ATTENTION MATRICES
 
         update_attention_matrices( loss, learning_rate);
 
 
-        printf("UPDATED WEIGHTS FOR THE LAST LAYER \n\n\n");
+        // printf("UPDATED WEIGHTS FOR THE LAST LAYER \n\n\n");
     }
 
     printf("********************************************** Epoch %d  total loss: %f ******************************************************************* \n\n" , epoch , total_loss);

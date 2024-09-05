@@ -6,7 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define TABLE_SIZE 5000
+#define TABLE_SIZE 100000
 
 typedef struct word_token_node {
     char *word;

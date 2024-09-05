@@ -4,6 +4,9 @@
 
 #include <math.h>    // FOR SQRT
 
+#define MATRIX_SIZE 20
+
+
 void min_max_normalize_and_scale(float* data, size_t size, float new_min, float new_max) {
 
     if (data == NULL || size == 0) {
@@ -74,7 +77,7 @@ size_t get_meaningful_length(const float* data, size_t size) {
     return end - start;
 }
 
-void Add_Positional_Encoding(float embedding_matrix[][2], int max_sentence_length) {
+void Add_Positional_Encoding(float embedding_matrix[][MATRIX_SIZE], int max_sentence_length) {
 
     for (int i = 0; i < max_sentence_length; i++) {
 

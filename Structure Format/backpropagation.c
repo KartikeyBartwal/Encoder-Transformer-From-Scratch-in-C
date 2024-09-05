@@ -82,13 +82,13 @@ void update_weights_last_layer(double loss, double learning_rate, double final_l
     }
 
     // PRINT UPDATED WEIGHTS FOR VERIFICATION (OPTIONAL)
-    printf("Updated weights for final layer:\n");
-    for (int i = 0; i < 10; i++) {
-        printf("final_layer_weights[%d] = %f\n", i, final_layer_weights[i]);
-    }
-    printf(".\n.\n.\n");
-    printf("final_layer_weights[%d] = %f\n", final_layer_size - 2, final_layer_weights[final_layer_size - 2]);
-    printf("final_layer_weights[%d] = %f\n", final_layer_size - 1, final_layer_weights[final_layer_size - 1]);
+    // printf("Updated weights for final layer:\n");
+    // for (int i = 0; i < 10; i++) {
+    //     printf("final_layer_weights[%d] = %f\n", i, final_layer_weights[i]);
+    // }
+    // printf(".\n.\n.\n");
+    // printf("final_layer_weights[%d] = %f\n", final_layer_size - 2, final_layer_weights[final_layer_size - 2]);
+    // printf("final_layer_weights[%d] = %f\n", final_layer_size - 1, final_layer_weights[final_layer_size - 1]);
 }
 
 void update_semi_final_layer_weights(double loss, double learning_rate, double semi_final_layer_weights[], int semi_final_layer_size, double clip_threshold) {
@@ -107,13 +107,13 @@ void update_semi_final_layer_weights(double loss, double learning_rate, double s
     }
 
     // PRINT UPDATED SEMI FINAL LAYER WEIGHTS FOR VERIFICATION (OPTIONAL)
-    printf("Updated weights for semi-final layer:\n");
-    for (int i = 0; i < 10; i++) {
-        printf("semi_final_layer_weights[%d] = %f\n", i, semi_final_layer_weights[i]);
-    }
-    printf(".\n.\n.\n");
-    printf("semi_final_layer_weights[%d] = %f\n", semi_final_layer_size - 2, semi_final_layer_weights[semi_final_layer_size - 2]);
-    printf("semi_final_layer_weights[%d] = %f\n", semi_final_layer_size - 1, semi_final_layer_weights[semi_final_layer_size - 1]);
+    // printf("Updated weights for semi-final layer:\n");
+    // for (int i = 0; i < 10; i++) {
+    //     printf("semi_final_layer_weights[%d] = %f\n", i, semi_final_layer_weights[i]);
+    // }
+    // printf(".\n.\n.\n");
+    // printf("semi_final_layer_weights[%d] = %f\n", semi_final_layer_size - 2, semi_final_layer_weights[semi_final_layer_size - 2]);
+    // printf("semi_final_layer_weights[%d] = %f\n", semi_final_layer_size - 1, semi_final_layer_weights[semi_final_layer_size - 1]);
 
 }
 

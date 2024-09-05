@@ -25,8 +25,8 @@ double* positional_encoding( int index, int vector_size ) {
 
 /////////////////////// SELF ATTENTION ////////////////////////////
 
-#define MATRIX_SIZE 2
-#define EMBEDDING_DIM 2
+#define MATRIX_SIZE 20
+#define EMBEDDING_DIM 20
 #define MAX_SENTENCE_LENGTH 512
 #define CLIP_THRESHOLD 100
 
@@ -58,72 +58,108 @@ double read_single_value_from_file(const char* filename) {
     return value;
 }
 
-
-// FUNCTION TO INITIALIZE MATRICES WITH WEIGHTS FROM FILES
-
 // FUNCTION TO INITIALIZE MATRICES WITH WEIGHTS FROM FILES
 void initialize_matrices_from_files() {
     int index = 0;
 
     // READ KEY MATRICES
+    printf("\nInitializing KEY MATRIX:\n");
+    printf("-----------------------------------------\n");
     for (int i = 0; i < MATRIX_SIZE; i++) {
+        printf("| ");
         for (int j = 0; j < MATRIX_SIZE; j++) {
             char filename[256];
-
-            printf( "key_weight_%d.txt \n" , index + 1);
-
-            snprintf(filename, sizeof(filename), "Model Trained Weights/self-attention-block-weights/key_weight_%d.txt", index + 1);
+            snprintf(filename, sizeof(filename), "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/self-attention-block-weights/key_weight_%d.txt", index + 1);
             k_matrix[i][j] = read_single_value_from_file(filename);
+
+            // PRINT MATRIX VALUE WITH ALIGNMENT
+            printf("%8.4f ", k_matrix[i][j]);
             index++;
         }
+        printf("|\n"); // CLOSE THE ROW WITH A VERTICAL LINE
     }
-
-    printf("Initialized KEY MATRIX\n");
+    printf("-----------------------------------------\n");
+    printf("KEY MATRIX INITIALIZED.\n");
 
     index = 0;
 
     // READ QUERY MATRICES
+    printf("\nInitializing QUERY MATRIX:\n");
+    printf("-----------------------------------------\n");
     for (int i = 0; i < MATRIX_SIZE; i++) {
+        printf("| ");
         for (int j = 0; j < MATRIX_SIZE; j++) {
             char filename[256];
-
-            printf( "query_weight_%d.txt \n" , index + 1);
-
-            snprintf(filename, sizeof(filename), "Model Trained Weights/self-attention-block-weights/query_weight_%d.txt", index + 1);
+            snprintf(filename, sizeof(filename), "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/self-attention-block-weights/query_weight_%d.txt", index + 1);
             q_matrix[i][j] = read_single_value_from_file(filename);
+
+            // PRINT MATRIX VALUE WITH ALIGNMENT
+            printf("%8.4f ", q_matrix[i][j]);
             index++;
         }
+        printf("|\n"); // CLOSE THE ROW WITH A VERTICAL LINE
     }
-
-    printf("Initialized QUERY MATRIX\n");
+    printf("-----------------------------------------\n");
+    printf("QUERY MATRIX INITIALIZED.\n");
 
     index = 0;
 
     // READ VALUE MATRICES
+    printf("\nInitializing VALUE MATRIX:\n");
+    printf("-----------------------------------------\n");
     for (int i = 0; i < MATRIX_SIZE; i++) {
+        printf("| ");
         for (int j = 0; j < MATRIX_SIZE; j++) {
             char filename[256];
-
-            printf( "value_weight_%d.txt \n" , index + 1);
-            snprintf(filename, sizeof(filename), "Model Trained Weights/self-attention-block-weights/value_weight_%d.txt", index + 1);
+            snprintf(filename, sizeof(filename), "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/self-attention-block-weights/value_weight_%d.txt", index + 1);
             v_matrix[i][j] = read_single_value_from_file(filename);
+
+            // PRINT MATRIX VALUE WITH ALIGNMENT
+            printf("%8.4f ", v_matrix[i][j]);
             index++;
         }
+        printf("|\n"); // CLOSE THE ROW WITH A VERTICAL LINE
     }
-
-    printf("Initialized VALUE MATRIX\n");
+    printf("-----------------------------------------\n");
+    printf("VALUE MATRIX INITIALIZED.\n");
 }
 
+
 // FUNCTION TO PRINT THE MATRICES
-void print_matrix(const char* name, double matrix[MATRIX_SIZE][MATRIX_SIZE]) {
-        printf("%s:\n", name);
-        for (int i = 0; i < MATRIX_SIZE; i++) {
-            for (int j = 0; j < MATRIX_SIZE; j++) {
-                printf("%.2f ", matrix[i][j]);
-            }
-            printf("\n");
+void print_matrix( double matrix[MATRIX_SIZE][MATRIX_SIZE]) {
+
+    // PRINT COLUMN HEADERS
+    printf("     "); // OFFSET FOR ROW HEADERS
+    for (int j = 0; j < MATRIX_SIZE; j++) {
+        printf("   [%2d]  ", j);
+    }
+    printf("\n");
+
+    // PRINT TOP BORDER
+    printf("     ");
+    for (int j = 0; j < MATRIX_SIZE; j++) {
+        printf("--------");
+    }
+    printf("-\n");
+
+    // PRINT MATRIX CONTENTS WITH ROW HEADERS
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        // ROW HEADER
+        printf("[%2d] |", i);
+
+        // MATRIX VALUES
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            printf(" %6.2f ", matrix[i][j]);
         }
-        printf("\n");
+        printf("|\n");
+    }
+
+    // PRINT BOTTOM BORDER
+    printf("     ");
+    for (int j = 0; j < MATRIX_SIZE; j++) {
+        printf("--------");
+    }
+    printf("-\n\n");
 }
 
 // FUNCTION TO COMPUTE THE DOT PRODUCT OF TWO MATRICES
@@ -279,7 +315,7 @@ void add_matrices(float matrix1[][MATRIX_SIZE], double matrix2[][MATRIX_SIZE], d
 void update_attention_matrices(double loss, double learning_rate) {
 
     // UPDATE K MATRIX
-    printf("Updating K Matrix:\n");
+    // printf("Updating K Matrix:\n");
     for (int i = 0; i < MATRIX_SIZE; i++) {
         for (int j = 0; j < MATRIX_SIZE; j++) {
             // Example gradient calculation; adjust as needed
@@ -288,13 +324,13 @@ void update_attention_matrices(double loss, double learning_rate) {
             k_matrix[i][j] -= learning_rate * gradient;
 
             // PRINT UPDATED ELEMENT FOR VERIFICATION
-            printf("k_matrix[%d][%d] = %lf\n", i, j, k_matrix[i][j]);
+            // printf("k_matrix[%d][%d] = %lf\n", i, j, k_matrix[i][j]);
         }
     }
-    printf("\n");
+    // printf("\n");
 
     // UPDATE Q MATRIX
-    printf("Updating Q Matrix:\n");
+    // printf("Updating Q Matrix:\n");
     for (int i = 0; i < MATRIX_SIZE; i++) {
         for (int j = 0; j < MATRIX_SIZE; j++) {
             // Example gradient calculation; adjust as needed
@@ -303,13 +339,13 @@ void update_attention_matrices(double loss, double learning_rate) {
             q_matrix[i][j] -= learning_rate * gradient;
 
             // PRINT UPDATED ELEMENT FOR VERIFICATION
-            printf("q_matrix[%d][%d] = %lf\n", i, j, q_matrix[i][j]);
+            // printf("q_matrix[%d][%d] = %lf\n", i, j, q_matrix[i][j]);
         }
     }
-    printf("\n");
+    // printf("\n");
 
     // UPDATE V MATRIX
-    printf("Updating V Matrix:\n");
+    // printf("Updating V Matrix:\n");
     for (int i = 0; i < MATRIX_SIZE; i++) {
         for (int j = 0; j < MATRIX_SIZE; j++) {
             // Example gradient calculation; adjust as needed
@@ -318,8 +354,8 @@ void update_attention_matrices(double loss, double learning_rate) {
             v_matrix[i][j] -= learning_rate * gradient;
 
             // PRINT UPDATED ELEMENT FOR VERIFICATION
-            printf("v_matrix[%d][%d] = %lf\n", i, j, v_matrix[i][j]);
+            // printf("v_matrix[%d][%d] = %lf\n", i, j, v_matrix[i][j]);
         }
     }
-    printf("\n");
+    // printf("\n");
 }

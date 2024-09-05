@@ -11,8 +11,8 @@ double* positional_encoding( int index, int vector_size );
 
 ////////////////////  SELF ATTENTION //////////////////////////////////
 
-#define MATRIX_SIZE 2
-#define EMBEDDING_DIM 2
+#define MATRIX_SIZE 20
+#define EMBEDDING_DIM 20
 
 // Declare matrices
 extern double k_matrix[MATRIX_SIZE][MATRIX_SIZE];
@@ -26,7 +26,7 @@ double read_single_value_from_file(const char* filename);
 void initialize_matrices_from_files();
 
 // Function to print a matrix
-void print_matrix(const char* name, double matrix[MATRIX_SIZE][MATRIX_SIZE]);
+void print_matrix( double matrix[MATRIX_SIZE][MATRIX_SIZE]);
 
 void dot_product(double A[MATRIX_SIZE][MATRIX_SIZE], double B[MATRIX_SIZE][MATRIX_SIZE], double result[MATRIX_SIZE][MATRIX_SIZE]);
 
