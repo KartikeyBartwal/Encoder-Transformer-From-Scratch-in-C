@@ -28,6 +28,7 @@ double* positional_encoding( int index, int vector_size ) {
 #define MATRIX_SIZE 2
 #define EMBEDDING_DIM 2
 #define MAX_SENTENCE_LENGTH 512
+#define CLIP_THRESHOLD 100
 
 // DEFINE MATRICES
 
@@ -243,6 +244,12 @@ void apply_softmax(double matrix[][MATRIX_SIZE], int rows, int cols) {
     }
 }
 
+double clip_gradient_transformer(double gradient) {
+    if (fabs(gradient) > CLIP_THRESHOLD) {
+        return (gradient > 0 ? CLIP_THRESHOLD : -CLIP_THRESHOLD);
+    }
+    return gradient;
+}
 
 // FUNCTION TO COMPUTE SELF-ATTENTION MATRIX
 void compute_self_attention(float embedding_matrix[][MATRIX_SIZE], double k_matrix[][MATRIX_SIZE], double q_matrix[][MATRIX_SIZE], double v_matrix[][MATRIX_SIZE], int length, double self_attention_matrix[][MATRIX_SIZE]) {
@@ -277,6 +284,7 @@ void update_attention_matrices(double loss, double learning_rate) {
         for (int j = 0; j < MATRIX_SIZE; j++) {
             // Example gradient calculation; adjust as needed
             double gradient = loss * k_matrix[i][j];
+            gradient = clip_gradient_transformer(gradient); // CLIP THE GRADIENT
             k_matrix[i][j] -= learning_rate * gradient;
 
             // PRINT UPDATED ELEMENT FOR VERIFICATION
@@ -291,6 +299,7 @@ void update_attention_matrices(double loss, double learning_rate) {
         for (int j = 0; j < MATRIX_SIZE; j++) {
             // Example gradient calculation; adjust as needed
             double gradient = loss * q_matrix[i][j];
+            gradient = clip_gradient_transformer(gradient); // CLIP THE GRADIENT
             q_matrix[i][j] -= learning_rate * gradient;
 
             // PRINT UPDATED ELEMENT FOR VERIFICATION
@@ -305,6 +314,7 @@ void update_attention_matrices(double loss, double learning_rate) {
         for (int j = 0; j < MATRIX_SIZE; j++) {
             // Example gradient calculation; adjust as needed
             double gradient = loss * v_matrix[i][j];
+            gradient = clip_gradient_transformer(gradient); // CLIP THE GRADIENT
             v_matrix[i][j] -= learning_rate * gradient;
 
             // PRINT UPDATED ELEMENT FOR VERIFICATION

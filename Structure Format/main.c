@@ -268,7 +268,7 @@ int main() {
 
 ////////   LEVEL3: MODEL TRAINING BEGINS   //////////////////////////
 
-int epochs = 1;
+int epochs = 100;
 
 int num_samples = training_data_count;  // ASSUME WE HAVE 1000 SAMPLES, ADJUST AS NEEDED
 
@@ -652,13 +652,13 @@ for (int epoch = 0; epoch < epochs; epoch++) {
         double learning_rate = ( double ) LEARNING_RATE;
 
         // UPDATE THE LAST LAYER WEIGHTS
-        update_weights_last_layer( loss , learning_rate , final_layer_weights , semi_final_layer_weights, 1024 , 512 );
+        update_weights_last_layer( loss , learning_rate , final_layer_weights , semi_final_layer_weights, 1024 , 512, 1 );
 
         printf("\n\n");
 
         // UPDATE THE SECOND LAYER LAYER WEIGHTS
 
-        update_semi_final_layer_weights(loss, learning_rate, semi_final_layer_weights, 512);
+        update_semi_final_layer_weights(loss, learning_rate, semi_final_layer_weights, 512, 1);
 
         // UPDATE THE ATTENTION MATRICES
 

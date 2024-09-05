@@ -44,4 +44,6 @@ void add_matrices(float matrix1[][MATRIX_SIZE], double matrix2[][MATRIX_SIZE], d
 
 void update_attention_matrices(double loss, double learning_rate);
 
+double clip_gradient_transformer(double gradient);
+
 #endif
