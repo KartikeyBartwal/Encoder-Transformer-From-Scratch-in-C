@@ -130,11 +130,18 @@ unsigned int getTokenId(const char* word) {
     return 0;  // WORD NOT FOUND, RETURN 0 (OR YOU COULD RETURN A SPECIAL VALUE FOR UNKNOWN WORDS)
 }
 
-// FUNCTION TO GENERATE RANDOM FLOAT BETWEEN 0 AND 1
+// FUNCTION TO GENERATE RANDOM FLOAT BETWEEN -50 to 50
 float generate_random() {
 
-    return ( float ) rand() / ( float ) RAND_MAX;
+    // GENERATE RANDOM FLOAT BETWEEN 0 AND 1
+    float random_fraction = (float) rand() / (float) RAND_MAX;
 
+    // SCALE AND SHIFT TO THE RANGE [-50000, +50000]
+    float min = -50.0f;
+    float max = 50.0f;
+    float range = max - min;
+
+    return min + (random_fraction * range);
 }
 
 // FUNCTION TO GENERATE WORD EMBEDDING FOR A GIVEN TOKEN ID

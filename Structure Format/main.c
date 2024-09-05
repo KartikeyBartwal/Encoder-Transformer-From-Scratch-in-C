@@ -1,4 +1,3 @@
-#include "backpropagation.h"
 #include <stdio.h>
 #include <math.h>
 #include <unistd.h>
@@ -22,6 +21,9 @@
 
 #include "feed_forward_layer.h"
 
+#include "activation_functions.h"
+
+#include "backpropagation.h"
 
 int main() {
 
@@ -296,11 +298,14 @@ const char* path_2 = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unl
 read_weights( path_2 , final_layer_weights , 1024);
 
 
-
+// EVERY EPOCH
 for (int epoch = 0; epoch < epochs; epoch++) {
 
     printf("Epoch: %d\n", epoch);
 
+    double total_loss = 0;
+
+    // CURRENTLY, KEEPING A BATCH SIZE OF 1. HENCE PROCESSING EVERY SAMPLE ONE BY ONE
 
     for (int sample_index = 0; sample_index < num_samples; sample_index++) {
 
@@ -560,12 +565,12 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
             double value = context_matrix[ row ][ 0 ] * semi_final_layer_weights[ row ]  + context_matrix[ row ][ 1 ] * semi_final_layer_weights[ row ];
 
-            // PASS THIS VALUE THROUGH SOME ACTIVATION FUNCTION
+            // PASSING THIS VALUE THROUGH SOME ACTIVATION FUNCTION
 
             /*
-           ACTIVATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+           ACTIVATION FUNCTION !!!!!
             */
-            semi_final_layer_nodes[ row ] = value;
+            semi_final_layer_nodes[ row ] = leaky_relu( value  , 0.01);
         }
 
         printf("\n\n Semi Final Layer Node Values: \n");
@@ -629,7 +634,8 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         // HERE IS THE MODEL'S OUTPUT
 
-        double output_embedding[ 2 ] = { total_value_node_1 , total_value_node_2 };
+        // APPLY THE SWISH ACTIVATION FUNCTION TO THE OVERALL OUTPUT
+        double output_embedding[ 2 ] = { swish( total_value_node_1 ) , swish( total_value_node_2 ) };
 
         printf("\n\nOutput Embedding: %lf, %lf \n", output_embedding[ 0 ], output_embedding[ 1 ] );
 
@@ -646,19 +652,20 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         printf(" loss: %lf \n\n\n" , loss);
 
+        total_loss += loss;
 
         ///////////////////////////////////////// BACKPROPAGATION ///////////////////////////////////////
 
         double learning_rate = ( double ) LEARNING_RATE;
 
         // UPDATE THE LAST LAYER WEIGHTS
-        update_weights_last_layer( loss , learning_rate , final_layer_weights , semi_final_layer_weights, 1024 , 512, 1 );
+        update_weights_last_layer( loss , learning_rate , final_layer_weights , semi_final_layer_weights, 1024 , 512, 100 );
 
         printf("\n\n");
 
         // UPDATE THE SECOND LAYER LAYER WEIGHTS
 
-        update_semi_final_layer_weights(loss, learning_rate, semi_final_layer_weights, 512, 1);
+        update_semi_final_layer_weights(loss, learning_rate, semi_final_layer_weights, 512, 100);
 
         // UPDATE THE ATTENTION MATRICES
 
@@ -668,8 +675,7 @@ for (int epoch = 0; epoch < epochs; epoch++) {
         printf("UPDATED WEIGHTS FOR THE LAST LAYER \n\n\n");
     }
 
-
-    printf("Epoch %d completed.\n", epoch);
+    printf("********************************************** Epoch %d  total loss: %f ******************************************************************* \n\n" , epoch , total_loss);
 
 }
 
