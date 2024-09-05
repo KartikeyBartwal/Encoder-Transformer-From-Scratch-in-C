@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # LOOP FROM 1 TO 512
-for i in {1..512}
+for i in {1..33280}
 do
     # CREATE A FILE NAMED final_weight_$i.txt
     touch "weight_${i}.txt"

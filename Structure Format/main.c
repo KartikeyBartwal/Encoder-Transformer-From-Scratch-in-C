@@ -286,16 +286,16 @@ printf("NUM SAMPLES: %d \n", training_data_count);
 initialize_matrices_from_files();
 
 ///////////////////////// SEMI FINAL LAYER NODES//////////////////////////////////
-double semi_final_layer_weights[ 512 ] = {0.0};
-const char* path = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/Semi_Final Multi-layered perceptron Weights/";
-read_weights(path, semi_final_layer_weights, 512 );
+double semi_final_layer_weights[ 512 * 65] = {0.0};
+const char* path = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers- MAIN BRANCH /Structure Format/Model Trained Weights/Semi_Final Multi-layered perceptron Weights/";
+read_weights(path, semi_final_layer_weights, 512 * 64 );
 
 
 ///////////////////////// FINAL LAYER NODES//////////////////////////////////
-double final_layer_weights[ 1024 ] = { 0.0 };
+double final_layer_weights[ 65* 2] = { 0.0 };
 
-const char* path_2 = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/Final Multi-layered perceptron weights/";
-read_weights( path_2 , final_layer_weights , 1024);
+const char* path_2 = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers- MAIN BRANCH /Structure Format/Model Trained Weights/Final Multi-layered perceptron weights/";
+read_weights( path_2 , final_layer_weights , 64 * 2);
 
 
 // EVERY EPOCH
@@ -399,6 +399,25 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         }
 
+        printf(" Scaling down the matrix values: \n\n");
+
+        scale_matrix( embedding_matrix );
+
+        printf(" After scaling: \n");
+
+        printf("Embedding Matrix:\n");
+
+        for (int i = 0; i < 10; i++) {
+
+            printf(" [%f, %f] \n", embedding_matrix[i][0], embedding_matrix[i][1]);
+
+            if ((i + 1) % 10 == 0) {
+
+                break;
+
+            }
+        }
+
         printf("Processing Sentence %d...\n", sample_index + 1);
 
         sleep(2);
@@ -424,7 +443,6 @@ for (int epoch = 0; epoch < epochs; epoch++) {
         // SELF ATTENTION BLOCK
 
         printf(" Self attention block \n");
-
 
 
         // PRINTING K MATRIX
@@ -538,11 +556,11 @@ for (int epoch = 0; epoch < epochs; epoch++) {
         for( int i = 0; i < MAX_SENTENCE_LENGTH; i++ ) {
 
             if( context_matrix[ i ][ 1 ] < 0 ) {
-                context_matrix[ i ][ 1 ] += -1;
+                context_matrix[ i ][ 1 ] += -100;
             }
 
             else{
-                context_matrix[ i ][ 1 ] += 1;
+                context_matrix[ i ][ 1 ] += 100;
             }
 
         }
@@ -559,18 +577,20 @@ for (int epoch = 0; epoch < epochs; epoch++) {
         printf("semi_final_layer_weights[%d] = %f\n", 512, semi_final_layer_weights[511]);
 
 
-        double semi_final_layer_nodes[ 512 ] = {0.0};
+        double semi_final_layer_nodes[ 512 * 65] = {0.0};
 
         for( int row = 0; row < 512; row++ ) {
 
-            double value = context_matrix[ row ][ 0 ] * semi_final_layer_weights[ row ]  + context_matrix[ row ][ 1 ] * semi_final_layer_weights[ row ];
+            for( int node = 0; node < 65; node++ ) {
 
-            // PASSING THIS VALUE THROUGH SOME ACTIVATION FUNCTION
+                int weight_index = ( row * 65 ) + node;
 
-            /*
-           ACTIVATION FUNCTION !!!!!
-            */
-            semi_final_layer_nodes[ row ] = leaky_relu( value  , 0.01);
+                double weight = semi_final_layer_weights[ weight_index ];
+
+                double value = embedding_matrix[ row ][ 0 ] * weight + embedding_matrix[ row ][ 1 ] * weight;
+
+                semi_final_layer_nodes[ row ] = leaky_relu( value  , 0.01);
+            }
         }
 
         printf("\n\n Semi Final Layer Node Values: \n");
@@ -582,7 +602,7 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         printf(".\n.\n.\n");
 
-        for( int i = 500; i < 512; i++ ) {
+        for( int i = 500; i < 65 * 2; i++ ) {
 
             printf("%lf \n", semi_final_layer_nodes[ i ]);
         }
@@ -594,8 +614,8 @@ for (int epoch = 0; epoch < epochs; epoch++) {
             printf("final_layer_weights[%d] = %f\n", i, final_layer_weights[i]);
         }
         printf(".\n.\n.\n");
-        printf("final_layer_weights[%d] = %f\n", 1022, final_layer_weights[1022]);
-        printf("final_layer_weights[%d] = %f\n", 1023, final_layer_weights[1023]);
+        printf("final_layer_weights[%d] = %f\n", 130, final_layer_weights[ 130 ]);
+        printf("final_layer_weights[%d] = %f\n", 130 , final_layer_weights[ 130 ]);
 
 
 
@@ -615,7 +635,7 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         double total_value_node_1 = 0;
 
-        for( int i = 0; i < 512; i++ ) {
+        for( int i = 0; i < 130; i++ ) {
 
             total_value_node_1 += semi_final_layer_nodes[ i ] * final_layer_weights[ i ];
         }
@@ -627,7 +647,7 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         double total_value_node_2 = 0;
 
-        for( int i = 0; i < 512; i++ ) {
+        for( int i = 0; i < 130; i++ ) {
 
             total_value_node_2 += semi_final_layer_nodes[ i ] * final_layer_weights[ i + 512 ];
         }
@@ -637,7 +657,7 @@ for (int epoch = 0; epoch < epochs; epoch++) {
         // APPLY THE SWISH ACTIVATION FUNCTION TO THE OVERALL OUTPUT
         double output_embedding[ 2 ] = { swish( total_value_node_1 ) , swish( total_value_node_2 ) };
 
-        printf("\n\nOutput Embedding: %lf, %lf \n", output_embedding[ 0 ], output_embedding[ 1 ] );
+        // printf("\n\nOutput Embedding: %lf, %lf \n", output_embedding[ 0 ], output_embedding[ 1 ] );
 
 
         ////////////////// COMPUTE THE LOSS FOR BACKPROPAGATION ////////////////////
@@ -646,7 +666,7 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         getEmbeddingByTokenId( y_actual, expected_embedding );
 
-        printf("\n Expected Embedding: %lf, %lf \n", expected_embedding[ 0 ], expected_embedding[ 1 ] );
+        // printf("\n Expected Embedding: %lf, %lf \n", expected_embedding[ 0 ], expected_embedding[ 1 ] );
 
         double loss = calculate_mse( output_embedding , expected_embedding , 2 );
 
@@ -683,72 +703,3 @@ for (int epoch = 0; epoch < epochs; epoch++) {
     return 0;
 
 }
-
-
-
-
-// for (int epoch = 0; epoch < epochs; epoch++) {
-
-//         printf("Epoch: %d\n", epoch);
-
-//         // CURRENTLY, KEEP BATCH SIZE AS 1
-//         for (int sample_index = 0; sample_index < num_samples; sample_index++) {
-
-//             // PRINT THE CURRENT SAMPLE NUMBER
-//             printf("Sample %d: ", sample_index + 1);
-
-//             // PROCESSING THE i-th SENTENCE
-//             float* sentence = (float*)malloc(training_data_count * sizeof(float));
-//             if (sentence == NULL) {
-//                 printf("Memory allocation failed.\n");
-//                 return 1;
-//             }
-
-//             // COPY CURRENT SAMPLE TO SENTENCE ARRAY
-//             for (int sentence_index = 0; sentence_index < MAX_SENTENCE_LENGTH; sentence_index++) {
-//                 sentence[ sentence_index ] = training_data[ sample_index ][ sentence_index ];
-//             }
-
-//             printf( " Current sample's first 10 elements: ");
-
-//             for( int sentence_index = 0; sentence_index < 10; sentence_index++ ) {
-
-//                 printf(" %f, " , sentence[ sentence_index ] );
-
-//             }
-
-//             int y = 0;
-
-//             // REMOVE THE LAST NON-ZERO VALUE AND REPLACE IT WITH 0, SET ITS VALUE TO y
-//             // FIND THE LAST NON-ZERO VALUE AND REPLACE IT WITH 0
-//             for (int k = training_data_count - 1; k >= 0; k--) {
-
-//                 if (sentence[k] != 0) {  // IF CURRENT VALUE IS NON-ZERO
-
-//                     y = sentence[k];    // STORE THE LAST NON-ZERO VALUE IN y
-//                     sentence[k] = 0;    // REPLACE IT WITH 0
-//                     break;  // EXIT LOOP AFTER THE LAST NON-ZERO VALUE IS FOUND
-//                 }
-//             }
-
-//             // APPLY STANDARD SCALER TO MAKE EVERY VALUE BETWEEN -1 AND 1
-//             standardize_data(sentence, 1, training_data_count);
-
-//             // PRINT THE STANDARDIZED DATA
-//             for (int j = 0; j < training_data_count; j++) {
-//                 printf("%.2f ", sentence[j]);
-//             }
-
-//                // GET THE POSITIONAL ENCODING
-
-
-//                // COMBINE THE CURRENT SAMPLE ARRAY WITH THE POSITIONAL ENCODING ARRAY
-
-//                //
-
-//            // MOVE TO THE NEXT LINE AFTER PRINTING THE ARRAY
-//            printf("\n");
-//        }
-
-
-// }

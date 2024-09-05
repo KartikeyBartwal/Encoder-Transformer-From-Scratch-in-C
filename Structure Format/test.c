@@ -1,68 +1,59 @@
-#include <stdio.h>    // FOR FILE OPERATIONS AND STANDARD INPUT/OUTPUT
-#include <stdlib.h>   // FOR MEMORY MANAGEMENT AND PROCESS CONTROL
-#include <string.h>   // FOR STRING HANDLING
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
 
-// DEFINE THE FUNCTION BEFORE MAIN
-void read_weights(const char* path, double* semi_final_layer_weights, int num_weights) {
-    char filename[256];
-    FILE *file;
-    double weight;
+#define MATRIX_SIZE 10 // Adjust as needed
 
-    // ITERATE FROM 1 TO THE SPECIFIED NUMBER OF WEIGHTS
-    for (int i = 1; i <= num_weights; i++) {
-        // CREATE THE FILE NAME
-        snprintf(filename, sizeof(filename), "%sweight_%d.txt", path, i);
+void scale_matrix(double matrix[MATRIX_SIZE][MATRIX_SIZE]) {
+    double min_val = matrix[0][0];
+    double max_val = matrix[0][0];
 
-        // OPEN THE FILE FOR READING
-        file = fopen(filename, "r");
-        if (file == NULL) {
-            fprintf(stderr, "Error opening file %s\n", filename);
-            exit(EXIT_FAILURE);
+    // Find the minimum and maximum values in the matrix
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            if (matrix[i][j] < min_val) {
+                min_val = matrix[i][j];
+            }
+            if (matrix[i][j] > max_val) {
+                max_val = matrix[i][j];
+            }
         }
+    }
 
-        // READ THE DOUBLE VALUE FROM THE FILE
-        if (fscanf(file, "%lf", &weight) != 1) {
-            fprintf(stderr, "Error reading value from file %s\n", filename);
-            fclose(file);
-            exit(EXIT_FAILURE);
+    // Handle case where all values are the same
+    if (min_val == max_val) {
+        // If min and max are the same, all values are equal, so we can't scale them
+        printf("All values in the matrix are the same. Scaling is not possible.\n");
+        return;
+    }
+
+    // Scale the matrix values to the range [-1, 1]
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            matrix[i][j] = 2 * (matrix[i][j] - min_val) / (max_val - min_val) - 1;
         }
-
-        // STORE THE VALUE IN THE ARRAY
-        semi_final_layer_weights[i - 1] = weight;
-
-        // CLOSE THE FILE
-        fclose(file);
     }
 }
 
-// FUNCTION TO GENERATE RANDOM FLOAT BETWEEN -50000 AND +50000
-float generate_random() {
-
-    // GENERATE RANDOM FLOAT BETWEEN 0 AND 1
-    float random_fraction = (float) rand() / (float) RAND_MAX;
-
-    // SCALE AND SHIFT TO THE RANGE [-50000, +50000]
-    float min = -50000.0f;
-    float max = 50000.0f;
-    float range = max - min;
-
-    return min + (random_fraction * range);
+void print_matrix(double matrix[MATRIX_SIZE][MATRIX_SIZE]) {
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            printf("%.2f ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
 
 int main() {
-    // double semi_final_layer_weights[512] = {0.0}; // DECLARE THE ARRAY
 
-    // // DEFINE THE PATH TO YOUR FILES
-    // const char* path = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/Semi_Final Multi-layered perceptron Weights/";
+    for( int row = 0; row < 512; row++ ) {
 
-    // // READ WEIGHTS FROM FILES
-    // read_weights(path, semi_final_layer_weights, 512);
+        for( int node = 0; node < 65; node++ ) {
 
-    for( int i = 0; i < 10000; i++ ) {
-
-        float random = generate_random();
-
-        printf(" %f \n" , random);
+            printf(" %d \n" , ( row * 65 ) + node );
+        }
     }
+
     return 0;
 }

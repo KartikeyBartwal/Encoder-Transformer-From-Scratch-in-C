@@ -1,8 +1,42 @@
 #include "Data_Preprocessing.h"
 
 #include <stdlib.h>  // FOR MALLOC AND FREE
-
+#include <stdio.h>
 #include <math.h>    // FOR SQRT
+
+#define MATRIX_SIZE 2
+#define EMBEDDING_SIZE 512
+
+void scale_matrix(float matrix[ EMBEDDING_SIZE][MATRIX_SIZE]) {
+    float min_val = matrix[0][0];
+    float max_val = matrix[0][0];
+
+    // Find the minimum and maximum values in the matrix
+    for (int i = 0; i < EMBEDDING_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            if (matrix[i][j] < min_val) {
+                min_val = matrix[i][j];
+            }
+            if (matrix[i][j] > max_val) {
+                max_val = matrix[i][j];
+            }
+        }
+    }
+
+    // Handle case where all values are the same
+    if (min_val == max_val) {
+        // If min and max are the same, all values are equal, so we can't scale them
+        printf("All values in the matrix are the same. Scaling is not possible.\n");
+        return;
+    }
+
+    // Scale the matrix values to the range [-1, 1]
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            matrix[i][j] = 2 * (matrix[i][j] - min_val) / (max_val - min_val) - 1;
+        }
+    }
+}
 
 void min_max_normalize_and_scale(float* data, size_t size, float new_min, float new_max) {
 
