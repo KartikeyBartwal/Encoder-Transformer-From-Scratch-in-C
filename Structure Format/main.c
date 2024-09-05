@@ -8,7 +8,7 @@
 #define MAX_SENTENCE_LENGTH 512
 #define MATRIX_SIZE 2
 #define EMBEDDING_DIM 2
-
+#define LEARNING_RATE 0.01
 
 /* SELF CREATED HEADER FILES */
 
@@ -274,9 +274,33 @@ int num_samples = training_data_count;  // ASSUME WE HAVE 1000 SAMPLES, ADJUST A
 
 printf("NUM SAMPLES: %d \n", training_data_count);
 
+
+
+
+// LOAD EVERYTHING YOU NEED TO LOAD INTO RAM BEFORE YOU START TRAINING THE MODEL
+
+
+////////////////////////// LOAD THE SELF ATTENTION BLOCK /////////////////////////////////
+initialize_matrices_from_files();
+
+///////////////////////// SEMI FINAL LAYER NODES//////////////////////////////////
+double semi_final_layer_weights[ 512 ] = {0.0};
+const char* path = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/Semi_Final Multi-layered perceptron Weights/";
+read_weights(path, semi_final_layer_weights, 512 );
+
+
+///////////////////////// FINAL LAYER NODES//////////////////////////////////
+double final_layer_weights[ 1024 ] = { 0.0 };
+
+const char* path_2 = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/Final Multi-layered perceptron weights/";
+read_weights( path_2 , final_layer_weights , 1024);
+
+
+
 for (int epoch = 0; epoch < epochs; epoch++) {
 
     printf("Epoch: %d\n", epoch);
+
 
     for (int sample_index = 0; sample_index < num_samples; sample_index++) {
 
@@ -396,7 +420,7 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         printf(" Self attention block \n");
 
-        initialize_matrices_from_files();
+
 
         // PRINTING K MATRIX
         printf("K Matrix:\n");
@@ -519,14 +543,6 @@ for (int epoch = 0; epoch < epochs; epoch++) {
         }
 
 
-        double semi_final_layer_weights[ 512 ] = {0.0};
-
-        // DEFINE THE PATH TO YOUR FILES
-        const char* path = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/Semi_Final Multi-layered perceptron Weights/";
-
-        // READ WEIGHTS FROM FILES
-        read_weights(path, semi_final_layer_weights, 512 );
-
         printf("\n\n");
 
         // PRINT THE FIRST 10 WEIGHTS TO VERIFY
@@ -566,12 +582,6 @@ for (int epoch = 0; epoch < epochs; epoch++) {
             printf("%lf \n", semi_final_layer_nodes[ i ]);
         }
 
-
-
-        double final_layer_weights[ 1024 ] = { 0.0 };
-
-        const char* path_2 = "/home/kartikey-bartwal/Technical Stuffs/C-Transformers-Unleashing-the-BERT-Beast/Structure Format/Model Trained Weights/Final Multi-layered perceptron weights/";
-        read_weights( path_2 , final_layer_weights , 1024);
 
         printf("\n\n");
 
@@ -639,9 +649,24 @@ for (int epoch = 0; epoch < epochs; epoch++) {
 
         ///////////////////////////////////////// BACKPROPAGATION ///////////////////////////////////////
 
+        double learning_rate = ( double ) LEARNING_RATE;
 
+        // UPDATE THE LAST LAYER WEIGHTS
+        update_weights_last_layer( loss , learning_rate , final_layer_weights , semi_final_layer_weights, 1024 , 512 );
+
+        printf("\n\n");
+
+        // UPDATE THE SECOND LAYER LAYER WEIGHTS
+
+        update_semi_final_layer_weights(loss, learning_rate, semi_final_layer_weights, 512);
+
+        // UPDATE THE ATTENTION MATRICES
+
+        update_attention_matrices( loss, learning_rate);
+
+
+        printf("UPDATED WEIGHTS FOR THE LAST LAYER \n\n\n");
     }
-
 
 
     printf("Epoch %d completed.\n", epoch);

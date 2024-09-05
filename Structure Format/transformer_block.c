@@ -266,3 +266,50 @@ void add_matrices(float matrix1[][MATRIX_SIZE], double matrix2[][MATRIX_SIZE], d
         }
     }
 }
+
+
+
+void update_attention_matrices(double loss, double learning_rate) {
+
+    // UPDATE K MATRIX
+    printf("Updating K Matrix:\n");
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            // Example gradient calculation; adjust as needed
+            double gradient = loss * k_matrix[i][j];
+            k_matrix[i][j] -= learning_rate * gradient;
+
+            // PRINT UPDATED ELEMENT FOR VERIFICATION
+            printf("k_matrix[%d][%d] = %lf\n", i, j, k_matrix[i][j]);
+        }
+    }
+    printf("\n");
+
+    // UPDATE Q MATRIX
+    printf("Updating Q Matrix:\n");
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            // Example gradient calculation; adjust as needed
+            double gradient = loss * q_matrix[i][j];
+            q_matrix[i][j] -= learning_rate * gradient;
+
+            // PRINT UPDATED ELEMENT FOR VERIFICATION
+            printf("q_matrix[%d][%d] = %lf\n", i, j, q_matrix[i][j]);
+        }
+    }
+    printf("\n");
+
+    // UPDATE V MATRIX
+    printf("Updating V Matrix:\n");
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            // Example gradient calculation; adjust as needed
+            double gradient = loss * v_matrix[i][j];
+            v_matrix[i][j] -= learning_rate * gradient;
+
+            // PRINT UPDATED ELEMENT FOR VERIFICATION
+            printf("v_matrix[%d][%d] = %lf\n", i, j, v_matrix[i][j]);
+        }
+    }
+    printf("\n");
+}

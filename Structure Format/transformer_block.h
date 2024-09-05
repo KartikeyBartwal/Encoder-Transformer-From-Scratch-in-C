@@ -42,4 +42,6 @@ void compute_self_attention(float embedding_matrix[][MATRIX_SIZE], double k_matr
 
 void add_matrices(float matrix1[][MATRIX_SIZE], double matrix2[][MATRIX_SIZE], double result_matrix[][MATRIX_SIZE], int rows, int cols);
 
+void update_attention_matrices(double loss, double learning_rate);
+
 #endif
