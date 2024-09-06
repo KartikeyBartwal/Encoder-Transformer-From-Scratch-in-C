@@ -26,9 +26,9 @@ char* readFileToString(const char *filename) {
 
     fileContent[fileSize] = '\0';  // NULL TERMINATE THE STRING
 
-    fclose(filePointer);  // CLOSE THE FILE
+    fclose(filePointer);  
 
-    return fileContent;  // RETURN THE FILE CONTENT AS A STRING
+    return fileContent;  
 }
 
 char** SplitSentences( char *raw_text ) {
@@ -68,7 +68,7 @@ char** SplitSentences( char *raw_text ) {
 
     sentences[ index ] = NULL;
 
-    return sentences;  // RETURN THE ARRAY OF SENTENCES
+    return sentences;  
 
 
 };

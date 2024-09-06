@@ -8,9 +8,6 @@
 
 /**
  * Reads weights from files and stores them in an array.
- *
- * @param path The directory path where the weight files are located.
- * @param semi_final_layer_weights The array to store the weights.
  */
 
 void read_weights(const char* path, double* semi_final_layer_weights, int num_weights);
